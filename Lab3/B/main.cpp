@@ -10,8 +10,8 @@ void heapify(int arr[], int n, int i)
 {
     int largest = i;
 // Инициализируем наибольший элемент как корень
-    int l = 2*i + 1; // левый = 2*i + 1
-    int r = 2*i + 2; // правый = 2*i + 2
+    int l = 2 * i + 1; // левый = 2*i + 1
+    int r = 2 * i + 2; // правый = 2*i + 2
 
     // Если левый дочерний элемент больше корня
     if (l < n && arr[l] > arr[largest])
@@ -39,7 +39,7 @@ void heapSort(int arr[], int n)
         heapify(arr, n, i);
 
     // Один за другим извлекаем элементы из кучи
-    for (int i=n-1; i>=0; i--)
+    for (int i = n-1; i >= 0; i--)
     {
         // Перемещаем текущий корень в конец
         swap(arr[0], arr[i]);
@@ -52,7 +52,7 @@ void heapSort(int arr[], int n)
 /* Вспомогательная функция для вывода на экран массива размера n*/
 void printArray(int arr[], int n)
 {
-    for (int i=0; i<n; ++i)
+    for (int i = 0; i <  n; ++i)
         cout << arr[i] << " ";
     cout << "\n";
 }
