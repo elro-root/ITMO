@@ -25,9 +25,12 @@ void Min_Heapify(int i) {
     int l = Left_i(i);
     int r = Right_i(i);
     int least;
-    if (l <= heap_size && a[l].key < a[i].key) least = l;
-    else least = i;
-    if (r <= heap_size && a[r].key < a[least].key) least = r;
+    if (l <= heap_size && a[l].key < a[i].key)
+        least = l;
+    else
+        least = i;
+    if (r <= heap_size && a[r].key < a[least].key)
+        least = r;
     if (least != i) {
         swap(a[i], a[least]);
         Min_Heapify(least);
@@ -37,7 +40,8 @@ void Min_Heapify(int i) {
 void decrease_key(int x, int i) {
     bool flag = true;
 
-    if (a[i].key < x) flag = false;
+    if (a[i].key < x)
+        flag = false;
 
     if (flag) {
         a[i].key = x;
