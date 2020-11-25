@@ -10,6 +10,7 @@ file = open('dict1.txt', 'r')
 dictt1 = file.readlines()
 file.close()
 # 1
+orig_text = text
 text = text.lower()
 text = re.sub(r"[!?,;.:—«()»\n]", " ", text)
 text = text.split()
@@ -40,7 +41,7 @@ for i in mistake:
             min_d = distance
             min_e = g
     fix_list.append([i, min_e, min_d])  # добавление слова с минимальным редактроским расстоянием
-fix_list.sort(key=lambda x: -x[2])  # сортировка по числу исправлений
+fix_list.sort(key=lambda x: x[2])  # сортировка по числу исправлений
 # цикл для исправления слов с редакторским расстоянием меньше 3
 for i in fix_list:
     for g in range(len(text)):
@@ -57,12 +58,19 @@ out.write(f'Количество разных словоформ из испра
           f'{len(new_diff_word_indict)}.\n')
 # 5
 
-flag = True
 for i in fix_list:
     if i[2] > 2:
-        out.write(f'{i[0].capitalize()} не исправлено.\n')
-        flag = False
-if flag:
-    for i in fix_list:
-        out.write(f'{i[0]} - {i[1]} - {i[2]}\n')
+        out.write(f'{i[0].capitalize()} не найдено - >2.\n')
+    else:
+        if i[0] in orig_text:
+            out.write(f'{i[0]} - {i[1]} - {i[2]}\n')
+        if i[0].capitalize() in orig_text:
+            out.write(f'{i[0].capitalize()} - {i[1].capitalize()} - {i[2]}\n')
 out.close()
+for i in fix_list:
+    if i[0] in orig_text:
+        orig_text = orig_text.replace(i[0], i[1])
+    if i[0].capitalize() in orig_text:
+        orig_text = orig_text.replace(i[0].capitalize(), i[1].capitalize())
+out = open("brain101_edit.txt", "w")
+out.write(orig_text)
