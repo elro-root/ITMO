@@ -74,3 +74,4 @@ for i in fix_list:
         orig_text = orig_text.replace(i[0].capitalize(), i[1].capitalize())
 out = open("brain101_edit.txt", "w")
 out.write(orig_text)
+out.close()
