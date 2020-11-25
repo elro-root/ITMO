@@ -61,17 +61,13 @@ out.write(f'Количество разных словоформ из испра
 for i in fix_list:
     if i[2] > 2:
         out.write(f'{i[0].capitalize()} не найдено - >2.\n')
-    else:
-        if i[0] in orig_text:
-            out.write(f'{i[0]} - {i[1]} - {i[2]}\n')
-        if i[0].capitalize() in orig_text:
-            out.write(f'{i[0].capitalize()} - {i[1].capitalize()} - {i[2]}\n')
-out.close()
-for i in fix_list:
-    if i[0] in orig_text:
+    elif i[0] in orig_text:
+        out.write(f'{i[0]} - {i[1]} - {i[2]}\n')
         orig_text = orig_text.replace(i[0], i[1])
-    if i[0].capitalize() in orig_text:
+    elif i[0].capitalize() in orig_text:
+        out.write(f'{i[0].capitalize()} - {i[1].capitalize()} - {i[2]}\n')
         orig_text = orig_text.replace(i[0].capitalize(), i[1].capitalize())
+out.close()
 out = open("brain101_edit.txt", "w")
 out.write(orig_text)
 out.close()
