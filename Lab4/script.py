@@ -1,27 +1,68 @@
-import re, collections
+import collections
+import re
+import Levenshtein
 
-# Сделал ввод из файла brain101.txt и dict1.txt
+# Ввод из файла brain101.txt и dict1.txt
 file = open('brain101.txt', 'r')
 text = file.read()
 file.close()
 file = open('dict1.txt', 'r')
-dict1 = file.readlines()
+dictt1 = file.readlines()
 file.close()
-
+# 1
 text = text.lower()
 text = re.sub(r"[!?,;.:—«()»\n]", " ", text)
 text = text.split()
-count = collections.Counter()
-for i in text:
-    count[i] += 1
+dict1 = collections.Counter()  # dict1 - словарь dict1
+for i in range(len(dictt1)):
+    dictt1[i] = re.sub(r"[\n]", "", dictt1[i])
+    a = dictt1[i].split()
+    dict1.update({a[0]: int(a[1])})
+# 2
+count = collections.Counter(text)
+diff_word = set(count)
+diff_word_indict = diff_word & set(dict1)
 out = open('output.txt', 'w')
-out.write(f'Количество словоформ в тексте: {str(len(list(count.elements())))}.\n')
-out.write(f'Количество разных словоформ в тексте: {str(len(set(count)))}.\n')
+out.write(f'Количество словоформ в тексте: {len(list(count.elements()))}.\n')
+out.write(f'Количество разных словоформ в тексте: {len(diff_word)}.\n')
+out.write(f'Количество разных словоформ из текста, присутствующих в словаре: {len(diff_word_indict)}.\n')
 
-cnt = collections.Counter()
-for i in range(len(dict1)):
-    dict1[i] = re.sub(r"[\n]", "", dict1[i])
-    a = dict1[i].split()
-    cnt.update({a[0]:int(a[1])})
-out.write(f'Количество разных словоформ из моего текста, присутствующих в словаре: {len(set(count) & set(cnt))}.\n')
+# 3
+mistake = list(diff_word ^ diff_word_indict)  # множество слов с ошибками
+out.write(f'Количество потенциальных ошибок: {len(mistake)}.\n')
+fix_list = list()  # список с исправленями
+for i in mistake:
+    min_d = 1000000
+    min_e = str()
+    for g in list(set(dict1)):
+        distance = Levenshtein.distance(i, g)
+        if distance < min_d:
+            min_d = distance
+            min_e = g
+    fix_list.append([i, min_e, min_d])  # добавление слова с минимальным редактроским расстоянием
+fix_list.sort(key=lambda x: -x[2])  # сортировка по числу исправлений
+# цикл для исправления слов с редакторским расстоянием меньше 3
+for i in fix_list:
+    for g in range(len(text)):
+        if i[0] == text[g] and i[2] < 3:
+            text[g] = i[1]
+
+# 4
+new_count = collections.Counter(text)
+new_diff_word = set(new_count)
+new_diff_word_indict = new_diff_word & set(dict1)
+out.write(f'Количество словоформ в исправленном тексте: {len(list(new_count.elements()))}.\n')
+out.write(f'Количество разных словоформ в исправленном тексте: {len(new_diff_word)}.\n')
+out.write(f'Количество разных словоформ из исправленного текста, присутствующих в словаре: '
+          f'{len(new_diff_word_indict)}.\n')
+# 5
+
+flag = True
+for i in fix_list:
+    if i[2] > 2:
+        out.write(f'{i[0].capitalize()} не исправлено.\n')
+        flag = False
+if flag:
+    for i in fix_list:
+        out.write(f'{i[0]} - {i[1]} - {i[2]}\n')
 out.close()
