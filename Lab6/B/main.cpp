@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -14,19 +13,20 @@ void input(){
 
 vector<vector<pair<string, string>>> hashTable(100001);
 
-int HashFunction(string &s){
+int hashFunc(string &s){
     const int p = 31;
     int hash = 0, p_pow = 1;
     for (char i : s){
         hash += (i - 'a' + 1) * p_pow;
         p_pow *= p;
     }
-    return abs(hash)%100001;
+    hash = abs(hash)%(hashTable.size());
+    return hash;
 }
 
 void MapPut(string &key, string &value){
 
-    int hash = HashFunction(key);
+    int hash = hashFunc(key);
     for (auto it = hashTable[hash].begin(); it != hashTable[hash].end(); ++it){
         if(it->first == key){
             it->second = value;
@@ -38,7 +38,7 @@ void MapPut(string &key, string &value){
 }
 
 string MapGet(string &key){
-    int hash = HashFunction(key);
+    int hash = hashFunc(key);
     for(pair pair:hashTable[hash]){
         if(pair.first == key)
             return pair.second;
@@ -47,7 +47,7 @@ string MapGet(string &key){
 }
 
 void MapDelete(string &key){
-    int hash = HashFunction(key);
+    int hash = hashFunc(key);
     for (auto it = hashTable[hash].begin(); it != hashTable[hash].end(); ++it){
         if(it->first == key){
             hashTable[hash].erase(it);
