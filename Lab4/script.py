@@ -40,8 +40,9 @@ for i in mistake:
         if distance < min_d:
             min_d = distance
             min_e = g
-    fix_list.append([i, min_e, min_d])  # добавление слова с минимальным редактроским расстоянием
-fix_list.sort(key=lambda x: x[2])  # сортировка по числу исправлений
+    fix_list.append([i, min_e, min_d, text.index(i)])  # добавление слова с минимальным редактроским расстоянием
+fix_list.sort(key=lambda x: x[3])  # сортировка в порядке встречаемоости в тексте
+
 # цикл для исправления слов с редакторским расстоянием меньше 3
 for i in fix_list:
     for g in range(len(text)):
