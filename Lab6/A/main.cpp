@@ -40,7 +40,7 @@ void insert(int element) {
 void erase(int element){
     if (exists(element)){
         int hash = hashFunc(element);
-        hashTable[hash].erase(std::remove(hashTable[hash].begin(), hashTable[hash].end(), element), hashTable[hash].end());
+        hashTable[hash].erase(remove(hashTable[hash].begin(), hashTable[hash].end(), element), hashTable[hash].end());
     }
 }
 
