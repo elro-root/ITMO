@@ -24,20 +24,16 @@ void create_tree(BST *node, int N){
             node[i].r_child = &node[right_son - 1];
     }
     for (int i = N - 1; i >= 0; --i) {
-        if (node[i].r_child){
-            int a = (node[i].r_child)->r_height;
-            int b = node[i].r_child->l_height;
-            node[i].r_height = ((a >= b) ? a:b) + 1;
-        } else {
+        if (node[i].r_child)
+            node[i].r_height =
+                    ((node[i].r_child->r_height >= node[i].r_child->l_height) ? node[i].r_child->r_height:node[i].r_child->l_height) + 1;
+        else
             node[i].r_height = 1;
-        }
-        if (node[i].l_child != nullptr){
-            int a = node[i].l_child->r_height;
-            int b = node[i].l_child->l_height;
-            node[i].l_height = ((a >= b) ? a:b) + 1;
-        } else {
+        if (node[i].l_child)
+            node[i].l_height =
+                    ((node[i].l_child->r_height >= node[i].l_child->l_height) ? node[i].l_child->r_height:node[i].l_child->l_height) + 1;
+        else
             node[i].l_height = 1;
-        }
     }
 }
 
