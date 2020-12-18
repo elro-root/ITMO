@@ -1,5 +1,4 @@
 import networkx as nx
-import matplotlib.pyplot as plt
 
 file = open('graphedges133.txt', 'r')
 edge = file.readlines()
@@ -65,11 +64,11 @@ out.write(f'Вопрос 11:\n\t'
           f'Диаметр компооненты связности: {nx.diameter(new_component)}\n')
 out.write(f'Вопрос 12:\n\t'
           f'Расстояние между 812 и 790: '
-          f'{len(distance["812"]["790"])}. Путь: {"->".join(new_distance["812"]["790"])}\n')
+          f'{len(new_distance["812"]["790"])}. Путь: {"->".join(new_distance["812"]["790"])}\n')
 out.write(f'Вопрос 13:\n\t'
           f'Расстояние между 859 и 745: '
-          f'{len(distance["859"]["745"])}. Путь: {"->".join(new_distance["859"]["745"])}\n')
+          f'{len(new_distance["859"]["745"])}. Путь: {"->".join(new_distance["859"]["745"])}\n')
 out.write(f'Вопрос 14:\n\t'
           f'Расстояние между 266 и 278: '
-          f'{len(distance["266"]["278"])}. Путь: {"->".join(new_distance["266"]["278"])}\n')
+          f'{len(new_distance["266"]["278"])}. Путь: {"->".join(new_distance["266"]["278"])}\n')
 out.close()
