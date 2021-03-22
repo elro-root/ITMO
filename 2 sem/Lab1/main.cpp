@@ -57,6 +57,10 @@ public:
         return *this;
     }//оператор присваивания
     CPoint getPoint (int i) const {return m_ListOfPoint[i];}
+    CPolyline& AddPoint(const CPoint &point){
+        m_ListOfPoint.push_back(point);
+        return *this;
+    }
     double getLength() const {return length();}
 
 };
@@ -77,6 +81,29 @@ public:
 class CPolygon : public CClosePolyline{
 protected:
     std::vector<double> m_ListOfAngles;
+    bool convex(){
+        int sum = 0;
+        for(auto&n : m_ListOfAngles)
+            sum += n;
+        if (sum > 180 * (m_ListOfPoint.size() - 2))
+            return false;
+        return true;
+    }
+    double area(){
+        int size = m_ListOfPoint.size() - 1;
+        double area {0};
+        if (convex()){
+            for (int i = 0; i < size; ++i) {area += m_ListOfPoint[i].getX() * m_ListOfPoint[i+1].getY();}
+            area += m_ListOfPoint[size].getX() * m_ListOfPoint[0].getY();
+            for (int i = 0; i < size; ++i) {area -= m_ListOfPoint[i+1].getX() * m_ListOfPoint[i].getY();}
+            area -= m_ListOfPoint[0].getX() * m_ListOfPoint[size].getY();
+            return (0.5) * abs(area);
+        }
+        else{
+            std::cout << "Вернул тебе нолик тк это невыпуклый многоугольник, прости" << std::endl;
+            return 0.0;
+        }
+    }
 public:
     CPolygon(CPoint *ListOfPoint = nullptr, int size = 0) : CClosePolyline(ListOfPoint, size) {
         m_ListOfAngles = angles();
@@ -89,8 +116,10 @@ public:
             return *this;
         int size = polygon.m_ListOfPoint.size();
         for (int i = 0; i < size; ++i) {m_ListOfPoint[i] = polygon.m_ListOfPoint[i];}
+        return *this;
     }
-    std::vector<double> getAngles(){return m_ListOfAngles;}
+    std::vector<double> getAngles() {return m_ListOfAngles;}
+    double getArea(){return area();}
 private:
     std::vector<double> angles(){
         int size = m_ListOfPoint.size() - 1;
@@ -111,10 +140,10 @@ private:
 
         for (int i = 0; i < size; ++i) {
             ListOfAngles.push_back(acos(-1*(vector[i].first * vector[i+1].first + vector[i].second * vector[i+1].second)/
-                                   (ListOfLength[i] * ListOfLength[i+1])));
+                                        (ListOfLength[i] * ListOfLength[i+1])));
         }
         ListOfAngles.push_back(acos(-1*(vector[size].first * vector[0].first + vector[size].second * vector[0].second)/
-                               (ListOfLength[size] * ListOfLength[0])));
+                                    (ListOfLength[size] * ListOfLength[0])));
 
         for (int i = 0; i < size + 1; ++i) {
             ListOfAngles[i] = ListOfAngles[i] * (180.0/PI);
@@ -122,14 +151,32 @@ private:
         return ListOfAngles;
     }
 };
+
+class CTriangle : public CPolygon{
+public:
+    CTriangle(CPoint *ListOfPoint = nullptr) : CPolygon(ListOfPoint, 3){
+        for (auto& n: getAngles()) {
+            if (n == 180 or n == 0) {
+                std::cout << "Это не треугольник" << std::endl;
+                exit(1);
+            }
+        }
+    }
+    CTriangle(const CTriangle &triangle) = default;
+    CTriangle& operator= (const CTriangle &triangle){
+        if (this == &triangle)
+            return *this;
+        for (int i = 0; i < 3; ++i) {m_ListOfPoint[i] = triangle.m_ListOfPoint[i];}
+        return *this;
+    }
+};
+
+class CTrapezoid : public CPolygon{
+public:
+    CTrapezoid(CPoint *ListOfPoints = nullptr, int size = 0) : CPolygon(ListOfPoints, size){}
+
+};
 /*
-class CTriangle{
-
-};
-class CTrapezoid{
-
-};
-
 class CRegularPolygon{
 
 };
@@ -137,10 +184,11 @@ class CRegularPolygon{
 int main() {
     CPoint triangle[3] = {CPoint {0, 0}, CPoint {0, 1}, CPoint {1, 0}};
     CPoint parallelogram[4] = {CPoint {0, 0}, CPoint {1, 2}, CPoint {3, 2}, CPoint {2, 0}};
-    CPoint square[4] = {CPoint {0, 0}, CPoint {0, 1}, CPoint {1, 1}, CPoint {0, 1}};
+    CPoint square[4] = {CPoint {0, 0}, CPoint {0, 1}, CPoint {1, 1}, CPoint {1, 0}};
+    CPoint trapezoid[4] = {CPoint {0, 0}, CPoint {5,0}, CPoint{4, 3}, CPoint{2, 3}};
     CPolygon Square(square, 4);
-    CPolygon Parallelogram(parallelogram, 4);
-    CPolygon Triangle(triangle, 3);
-    std::cout<<Square.getLength()<<std::endl;
+    CTriangle Triangle(triangle);
+    CTrapezoid Trapezoid(trapezoid, 4);
+    std::cout << "Perimeter = " << Trapezoid.getLength() << "\nArea = " << Trapezoid.getArea() << std::endl;
     return 0;
 }
