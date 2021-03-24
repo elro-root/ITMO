@@ -19,7 +19,12 @@ int **arr_malloc(unsigned long height, unsigned long width){ // Функция �
     }
     return ARR;
 }
-
+void arr_free(int ** arr, unsigned long height){
+    for (int i = 0; i < height; i++){
+        free(arr[i]);
+    }
+    free(arr);
+}
 int neighborCounter(int **area, int x, int y){ // Фукция посчёта кол-ва соседий x y
     int sum = 0;
     for (int i = x - 1; i <= x + 1; i++){
@@ -40,7 +45,7 @@ unsigned char *matrix_to_str(int **matrix, unsigned long height, unsigned long w
             if (matrix[i][j] == 1)
             { //задача цвета для живых пикселей
                 info_on_pix[m] = 0; // синий
-                info_on_pix[m + 1] = 0; // зелёный
+                info_on_pix[m + 1] = 100; // зелёный
                 info_on_pix[m + 2] = 255; // красный
             } else
             { // задача цвета для заднего фона (неживых пикселей)
@@ -96,7 +101,7 @@ int main(int argc, char *argv[]){
     next_generation = arr_malloc(height,  width * 3);
     fseek(image, 54, SEEK_SET);
     char buffer[3]; // записываем значения пикселей в двумерный массив
-    for (int i = height - 1; i >= 0; i--) // Неживой - 1, Живой - 1
+    for (int i = height - 1; i >= 0; i--)
     {
         for (int j = 0; j < width; j++){
             buffer[0] = fgetc(image);
@@ -109,16 +114,15 @@ int main(int argc, char *argv[]){
                 current_generation[i][j] = 0;
         }
     }
-    char fileName[10]; // выделение памяти для массивов выхоных данных
+    char fileName[10]; // выделение памяти для массивов выходных данных
     char directory[256];
-    char *pixelInfo;
-    // копирование информации о начально поколении для последующего редактирования
-    for (unsigned long i = 0; i < height; i++){
+    unsigned char *pixelInfo; 
+    for (unsigned long i = 0; i < height; i++){ // копирование информации о начально поколении для последующего редактирования
         for (unsigned long j = 0; j < width; j++)
             next_generation[i][j] = current_generation[i][j];
     }
-    int countOfNeighbors; // МЕЙН ЦИКЛ, для создания новых поколений и вывод их
-    for (int gameIteration = 0; gameIteration < max_iter; gameIteration++)
+    int countOfNeighbors;
+    for (int gameIteration = 0; gameIteration < max_iter; gameIteration++) // создаание новых поколений и вывод их в файл
     {
         for (unsigned long i = 1; i < height - 1; i++) // изменение след. покаления в соответсвиями с правилами игры
         {
@@ -163,13 +167,13 @@ int main(int argc, char *argv[]){
             {
                 printf("File number %d wasn't created\n", gameIteration);
             }
-            fseek(new_bmp, 0, SEEK_SET); // записываем в output файл значений заголовка (не изменяется) и значений пикселей
-            fwrite(header, 1, 54, new_bmp);
+            fseek(new_bmp, 0, SEEK_SET);
+            fwrite(header, 1, 54, new_bmp); // записываем в output файл значений заголовка (не изменяется) и значений пикселей
             fwrite(pixelInfo, 1, 3 * width * height, new_bmp);
         }
     }
-    free(current_generation);
-    free(next_generation);
+    arr_free(current_generation, height);
+    arr_free(next_generation, height);
     free(pixelInfo);
     return 0;
 }
