@@ -1,0 +1,6 @@
+f = open('aplusbb.in', 'r')
+a, b = list(map(int, f.read().split()))
+f.close()
+f2 = open('aplusbb.out', 'w')
+f2.write(str(a+b*b))
+f2.close()
