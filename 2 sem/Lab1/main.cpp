@@ -61,7 +61,8 @@ public:
         return *this;
     }
     double getLength() const {return length();}
-    std::string getType(){return "Polyline";}
+
+    virtual std::string getType(){return "Polyline";}
 
 };
 
@@ -86,7 +87,7 @@ public:
         for (int i = 0; i < size; ++i) {m_ListOfPoint[i] = closePolyline.m_ListOfPoint[i];}
         return *this;
     }
-    std::string getType(){return "Closepolyline";}
+    virtual std::string getType(){return "Closepolyline";}
 };
 
 class CPolygon : public CClosePolyline{
