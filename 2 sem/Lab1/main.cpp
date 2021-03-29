@@ -33,12 +33,11 @@ protected:
     double distance (const CPoint& a, const CPoint& b) const {
         return sqrt(pow((a.getX() - b.getX()),2) + pow((a.getY() - b.getY()),2));
     }
-    double length() const{
+    virtual double length() const{
         double len = 0;
         for (int i = 1; i < m_ListOfPoint.size(); ++i) {
             len += distance(m_ListOfPoint[i], m_ListOfPoint[i-1]);
         }
-        len += distance(m_ListOfPoint[m_ListOfPoint.size()-1], m_ListOfPoint[0]);
         return len;
     }
 public:
@@ -62,10 +61,21 @@ public:
         return *this;
     }
     double getLength() const {return length();}
+    std::string getType(){return "Polyline";}
 
 };
 
 class CClosePolyline : public CPolyline{
+protected:
+    virtual double length() const{
+        double len = 0;
+        for (int i = 1; i < m_ListOfPoint.size(); ++i) {
+            len += distance(m_ListOfPoint[i], m_ListOfPoint[i-1]);
+        }
+        len += distance(m_ListOfPoint[m_ListOfPoint.size()-1], m_ListOfPoint[0]);
+        return len;
+    }
+
 public:
     CClosePolyline(CPoint *ListOfPoint = nullptr, int size = 0) : CPolyline(ListOfPoint, size){}
     CClosePolyline(const CClosePolyline &closePolyline) : CPolyline(closePolyline){}
@@ -76,6 +86,7 @@ public:
         for (int i = 0; i < size; ++i) {m_ListOfPoint[i] = closePolyline.m_ListOfPoint[i];}
         return *this;
     }
+    std::string getType(){return "Closepolyline";}
 };
 
 class CPolygon : public CClosePolyline{
@@ -100,7 +111,7 @@ protected:
             return (0.5) * abs(area);
         }
         else{
-            std::cout << "Вернул тебе нолик тк это невыпуклый многоугольник, прости" << std::endl;
+            std::cout << "Вернул тебе нолик тк это невыпуклый многоугольник" << std::endl;
             return 0.0;
         }
     }
@@ -162,7 +173,14 @@ public:
             }
         }
     }
-    CTriangle(const CTriangle &triangle) = default;
+    CTriangle(const CTriangle &triangle) : CPolygon(triangle){
+        for (auto& n: getAngles()) {
+            if (n == 180 or n == 0) {
+                std::cout << "not triangle" << std::endl;
+                exit(1);
+            }
+        }
+    };
     CTriangle& operator= (const CTriangle &triangle){
         if (this == &triangle)
             return *this;
@@ -173,22 +191,91 @@ public:
 
 class CTrapezoid : public CPolygon{
 public:
-    CTrapezoid(CPoint *ListOfPoints = nullptr, int size = 0) : CPolygon(ListOfPoints, size){}
+    CTrapezoid(CPoint *ListOfPoints = nullptr) : CPolygon(ListOfPoints, 4){
+        if (!check()){
+            std::cout << "not trapeziod" << std::endl;
+            exit(1);
+        }
+    }
+    CTrapezoid(const CTrapezoid &trapezoid) : CPolygon(trapezoid){
+        if (!check()){
+            std::cout << "not trapeziod" << std::endl;
+            exit(1);
+        }
+    }
+    CTrapezoid& operator= (const CTrapezoid &trapezoid){
+        if (this == &trapezoid)
+            return *this;
+        int size = trapezoid.m_ListOfPoint.size();
+        for (int i = 0; i < size; ++i) {m_ListOfPoint[i] = trapezoid.m_ListOfPoint[i];}
+        return *this;
+    }
 
+private:
+    bool check(){
+        if ((m_ListOfAngles[0] == 180 - m_ListOfAngles[1] || m_ListOfAngles[2] == 180 - m_ListOfAngles[3]) &&
+            (m_ListOfAngles[1] != 180 - m_ListOfAngles[2] || m_ListOfAngles[3] != 180 - m_ListOfAngles[0])){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 };
-/*
-class CRegularPolygon{
 
+class CRegularPolygon : public CPolygon{
+public:
+    CRegularPolygon(CPoint *ListOfPoint = nullptr, int size = 0) : CPolygon(ListOfPoint, size){
+        if (!check()){
+            std::cout << "not regularpolygon" << std::endl;
+            exit(1);
+        }
+    }
+    CRegularPolygon(const CRegularPolygon &polygon) : CPolygon(polygon){
+        if (!check()){
+            std::cout << "not regularpolygon" << std::endl;
+            exit(1);
+        }
+    }
+    CRegularPolygon& operator= (const CRegularPolygon &regularPolygon){
+        if (this == &regularPolygon)
+            return *this;
+        int size = regularPolygon.m_ListOfPoint.size();
+        for (int i = 0; i < size; ++i) {m_ListOfPoint[i] = regularPolygon.m_ListOfPoint[i];}
+        return *this;
+    }
+
+private:
+    bool check(){
+        for (auto &n:m_ListOfAngles){
+            if (n != m_ListOfAngles[0])
+                return false;
+        }
+        double edge = distance(m_ListOfPoint[0], m_ListOfPoint[1]);
+        int size = m_ListOfPoint.size();
+        for (int i = 1; i < size; ++i) {
+            if (distance(m_ListOfPoint[i], m_ListOfPoint[i-1]) != edge)
+                return false;
+        }
+        if (distance(m_ListOfPoint[size], m_ListOfPoint[0]) != edge)
+            return false;
+        return true;
+    }
 };
-*/
+
 int main() {
     CPoint triangle[3] = {CPoint {0, 0}, CPoint {0, 1}, CPoint {1, 0}};
-    CPoint parallelogram[4] = {CPoint {0, 0}, CPoint {1, 2}, CPoint {3, 2}, CPoint {2, 0}};
     CPoint square[4] = {CPoint {0, 0}, CPoint {0, 1}, CPoint {1, 1}, CPoint {1, 0}};
     CPoint trapezoid[4] = {CPoint {0, 0}, CPoint {5,0}, CPoint{4, 3}, CPoint{2, 3}};
+    CPolyline polyline(square, 4);
+    CClosePolyline closePolyline(square, 4);
+    CPolyline *lines[2] = {&polyline, &closePolyline};
+    for(auto &n:lines){
+        std::cout << "Length " << n->getType() << " is " << n->getLength() << std::endl;
+    }
     CPolygon Square(square, 4);
     CTriangle Triangle(triangle);
-    CTrapezoid Trapezoid(trapezoid, 4);
+    CTrapezoid Trapezoid(trapezoid);
     std::cout << "Perimeter = " << Trapezoid.getLength() << "\nArea = " << Trapezoid.getArea() << std::endl;
     return 0;
 }
