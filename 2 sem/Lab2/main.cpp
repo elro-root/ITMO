@@ -68,16 +68,43 @@ public:
         return *this;
     }
 
+    CPolynomial& operator* (CPolynomial &polynomial){
+        if (m_polynomial.size() < polynomial.m_polynomial.size()){
+            for (int i = m_polynomial.size(); i < polynomial.m_polynomial.size() ; ++i){
+                m_polynomial.insert(m_polynomial.end(), 0);
+            }
+        }
+        for(int i = 0; i < polynomial.m_polynomial.size(); i++)
+            m_polynomial[i]=m_polynomial[i] * polynomial.m_polynomial[i];
+        return *this;
+    }
+
+    CPolynomial& operator *= (CPolynomial &polynomial){
+        *this = *this * polynomial;
+        return *this;
+    }
+
+    CPolynomial& operator/ (int &n){
+        for (int i = 0; i < m_polynomial.size(); ++i) {
+            m_polynomial[i] /= n;
+        }
+        return *this;
+    }
+
+    CPolynomial& operator/= (int &n){
+        *this = *this / n;
+        return *this;
+    }
+
+    int& operator[] (const int n){
+        return this->m_polynomial[this->m_polynomial.size() - n];
+    }
+
     CPolynomial operator-() const{
         CPolynomial polynomial = *this;
         for (int i = 0; i < m_polynomial.size(); ++i){
             polynomial.m_polynomial[i] *= -1;
         }
-        return polynomial;
-    }
-
-    CPolynomial operator+() const{
-        CPolynomial polynomial = *this;
         return polynomial;
     }
 
@@ -101,10 +128,18 @@ public:
         }
         for (int i = size - 1; i > -1; --i){
             if (i == 0 || i == 1){
-                if (i == 0)
-                    std::cout << m_polynomial[i];
-                if (i == 1)
-                    std::cout << "+" << m_polynomial[i] <<"x";
+                if (i == 0){
+                    if (m_polynomial[i] < 0)
+                        std::cout << m_polynomial[i];
+                    else
+                        std::cout << "+" << m_polynomial[i];
+                }
+                if (i == 1){
+                    if (m_polynomial[i] < 0)
+                        std::cout << m_polynomial[i] << "x";
+                    else
+                        std::cout << "+" << m_polynomial[i] << "x";
+                }
             }else{
                 if (m_polynomial[i] > 0){
                     if (m_polynomial[i] == 1)
@@ -127,14 +162,14 @@ private:
     std::vector<int> m_polynomial;
 };
 int main(){
-    CPolynomial polynom1 = {std::vector<int>{3, 6, 9, 9}};
+    CPolynomial polynom1 = {std::vector<int>{1, 2, 3, 4}};
     CPolynomial polynom2 = {std::vector<int>{1, 2, 3, 3, 12}};
     if (polynom1 == polynom2)
         std::cout << "pol1 equal pol2" << std::endl;
     if (polynom1 != polynom2)
         std::cout << "pol1 not equal pol2" << std::endl;
 
-    polynom1 - polynom2;
+    std::cout << polynom1[3] << std::endl;
 
     polynom1.printPolynomial();
 
