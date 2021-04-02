@@ -1,10 +1,11 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
 class CPolynomial{
 
 public:
-    CPolynomial(std::vector<int> pol){
+    CPolynomial(std::vector<double> pol = {0}){
         std::reverse(pol.begin(), pol.end());
         m_polynomial = pol;
     }
@@ -26,7 +27,7 @@ public:
         if (polynomial1.m_polynomial.size() != polynomial2.m_polynomial.size())
             return false;
         for (int i = 0; i < polynomial1.m_polynomial.size(); ++i){
-            if (polynomial1.m_polynomial[i] != polynomial2.m_polynomial.size())
+            if (polynomial1.m_polynomial[i] != polynomial2.m_polynomial[i])
                 return false;
         }
         return true;
@@ -96,7 +97,68 @@ public:
         return *this;
     }
 
-    int& operator[] (const int n){
+    friend std::istream& operator>> (std::istream &in, CPolynomial &polynomial){
+        int n;
+        std::cout << "Enter the number of members of the polynomial: ";
+        std::cin >> n;
+        double k;
+        std::cout << "Enter the coefficients of the polynomial, separated by a space: ";
+        for (int i = 0; i < n; ++i) {
+            in >> k;
+            polynomial.m_polynomial.push_back(k);
+        }
+        polynomial.m_polynomial.erase(polynomial.m_polynomial.begin());
+        std::reverse(polynomial.m_polynomial.begin(), polynomial.m_polynomial.end());
+        return in;
+    }
+
+    friend std::ostream& operator<< (std::ostream &out, CPolynomial &polynomial){
+        int size = polynomial.m_polynomial.size() - 1;
+        if (polynomial.m_polynomial[size] > 0){
+            if (polynomial.m_polynomial[size] == 1)
+                out  << "x^" << size;
+            else
+                out  << polynomial.m_polynomial[size] << "x^" << size;
+        }
+        if (polynomial.m_polynomial[size] < 0){
+            if (polynomial.m_polynomial[size] == -1)
+                out  << "-x^" << size;
+            else
+                out  << polynomial.m_polynomial[size] << "x^" << size;
+        }
+        for (int i = size - 1; i > -1; --i){
+            if (i == 0 || i == 1){
+                if (i == 0){
+                    if (polynomial.m_polynomial[i] < 0)
+                        out  << polynomial.m_polynomial[i];
+                    else
+                        out << polynomial.m_polynomial[i];
+                }
+                if (i == 1){
+                    if (polynomial.m_polynomial[i] < 0)
+                        out  << polynomial.m_polynomial[i] << "x";
+                    else if (polynomial.m_polynomial[i] != 0)
+                        out  << "+" << polynomial.m_polynomial[i] << "x+";
+                }
+            }else{
+                if (polynomial.m_polynomial[i] > 0){
+                    if (polynomial.m_polynomial[i] == 1)
+                        out  << "+" << "x^" << i;
+                    else
+                        out  << "+" << polynomial.m_polynomial[i] << "x^" << i;
+                }
+                if (polynomial.m_polynomial[i] < 0){
+                    if (polynomial.m_polynomial[i] == -1)
+                        out  << "-" << "x^" << i;
+                    else
+                        out  << polynomial.m_polynomial[i] << "x^" << i;
+                }
+            }
+        }
+        return out;
+    }
+
+    double& operator[] (const int n){
         return this->m_polynomial[this->m_polynomial.size() - n];
     }
 
@@ -108,70 +170,18 @@ public:
         return polynomial;
     }
 
-    std::vector<int> getPolynomial() const{
+    std::vector<double> getPolynomial() const{
         return m_polynomial;
     }
 
-    void printPolynomial() const {
-        int size = m_polynomial.size() - 1;
-        if (m_polynomial[size] > 0){
-            if (m_polynomial[size] == 1)
-                std::cout << "x^" << size;
-            else
-                std::cout << m_polynomial[size] << "x^" << size;
-        }
-        if (m_polynomial[size] < 0){
-            if (m_polynomial[size] == -1)
-                std::cout << "-x^" << size;
-            else
-                std::cout << m_polynomial[size] << "x^" << size;
-        }
-        for (int i = size - 1; i > -1; --i){
-            if (i == 0 || i == 1){
-                if (i == 0){
-                    if (m_polynomial[i] < 0)
-                        std::cout << m_polynomial[i];
-                    else
-                        std::cout << "+" << m_polynomial[i];
-                }
-                if (i == 1){
-                    if (m_polynomial[i] < 0)
-                        std::cout << m_polynomial[i] << "x";
-                    else
-                        std::cout << "+" << m_polynomial[i] << "x";
-                }
-            }else{
-                if (m_polynomial[i] > 0){
-                    if (m_polynomial[i] == 1)
-                        std::cout << "+" << "x^" << i;
-                    else
-                        std::cout << "+" << m_polynomial[i] << "x^" << i;
-                }
-                if (m_polynomial[i] < 0){
-                    if (m_polynomial[i] == -1)
-                        std::cout << "-" << "x^" << i;
-                    else
-                        std::cout << m_polynomial[i] << "x^" << i;
-                }
-            }
-        }
-
-    }
-
 private:
-    std::vector<int> m_polynomial;
+    std::vector<double> m_polynomial;
 };
+
 int main(){
-    CPolynomial polynom1 = {std::vector<int>{1, 2, 3, 4}};
-    CPolynomial polynom2 = {std::vector<int>{1, 2, 3, 3, 12}};
-    if (polynom1 == polynom2)
-        std::cout << "pol1 equal pol2" << std::endl;
-    if (polynom1 != polynom2)
-        std::cout << "pol1 not equal pol2" << std::endl;
-
-    std::cout << polynom1[3] << std::endl;
-
-    polynom1.printPolynomial();
-
+    CPolynomial polynom1;
+    std::cin >> polynom1;
+    CPolynomial polynom2 = {std::vector<double>{1, 3, 6, 9, 12}};
+    std::cout << polynom2 - polynom1 << std::endl;
     return 0;
 }
