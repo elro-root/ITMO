@@ -37,15 +37,16 @@ public:
         return !(polynomial1 == polynomial2);
     }
 
-    CPolynomial& operator- (CPolynomial &polynomial){
+    CPolynomial operator- (CPolynomial &polynomial){
+        std::vector<double>results;
+        results.assign(this->m_polynomial.size(), 0);
         if (m_polynomial.size() < polynomial.m_polynomial.size()){
-            for (int i = m_polynomial.size(); i < polynomial.m_polynomial.size() ; ++i){
-                m_polynomial.insert(m_polynomial.end(), 0);
-            }
+            results.assign(polynomial.m_polynomial.size(), 0);
         }
+        CPolynomial result = {results};
         for(int i = 0; i < polynomial.m_polynomial.size(); i++)
-            m_polynomial[i]=m_polynomial[i] - polynomial.m_polynomial[i];
-        return *this;
+            result.m_polynomial[i]=m_polynomial[i] - polynomial.m_polynomial[i];
+        return result;
     }
 
     CPolynomial& operator-= (CPolynomial &polynomial){
@@ -53,15 +54,16 @@ public:
         return *this;
     }
 
-    CPolynomial& operator+ (CPolynomial &polynomial){
+    CPolynomial operator+ (CPolynomial &polynomial){
+        std::vector<double>results;
+        results.assign(this->m_polynomial.size(), 0);
         if (m_polynomial.size() < polynomial.m_polynomial.size()){
-            for (int i = m_polynomial.size(); i < polynomial.m_polynomial.size() ; ++i){
-                m_polynomial.insert(m_polynomial.end(), 0);
-            }
+            results.assign(polynomial.m_polynomial.size(), 0);
         }
+        CPolynomial result = {results};
         for(int i = 0; i < polynomial.m_polynomial.size(); i++)
-            m_polynomial[i]=m_polynomial[i] + polynomial.m_polynomial[i];
-        return *this;
+            result.m_polynomial[i]=m_polynomial[i] + polynomial.m_polynomial[i];
+        return result;
     }
 
     CPolynomial& operator+= (CPolynomial &polynomial){
@@ -69,15 +71,16 @@ public:
         return *this;
     }
 
-    CPolynomial& operator* (CPolynomial &polynomial){
+    CPolynomial operator* (CPolynomial &polynomial){
+        std::vector<double>results;
+        results.assign(this->m_polynomial.size(), 0);
         if (m_polynomial.size() < polynomial.m_polynomial.size()){
-            for (int i = m_polynomial.size(); i < polynomial.m_polynomial.size() ; ++i){
-                m_polynomial.insert(m_polynomial.end(), 0);
-            }
+            results.assign(polynomial.m_polynomial.size(), 0);
         }
+        CPolynomial result = {results};
         for(int i = 0; i < polynomial.m_polynomial.size(); i++)
-            m_polynomial[i]=m_polynomial[i] * polynomial.m_polynomial[i];
-        return *this;
+            result.m_polynomial[i]=m_polynomial[i] * polynomial.m_polynomial[i];
+        return result;
     }
 
     CPolynomial& operator *= (CPolynomial &polynomial){
@@ -85,11 +88,14 @@ public:
         return *this;
     }
 
-    CPolynomial& operator/ (int &n){
+    CPolynomial operator/ (int &n){
+        std::vector<double>results;
+        results.assign(n, 0);
+        CPolynomial result = {results};
         for (int i = 0; i < m_polynomial.size(); ++i) {
-            m_polynomial[i] /= n;
+            result.m_polynomial[i] = m_polynomial[i] / n;
         }
-        return *this;
+        return result;
     }
 
     CPolynomial& operator/= (int &n){
@@ -179,9 +185,9 @@ private:
 };
 
 int main(){
-    CPolynomial polynom1;
-    std::cin >> polynom1;
-    CPolynomial polynom2 = {std::vector<double>{1, 3, 6, 9, 12}};
-    std::cout << polynom2 - polynom1 << std::endl;
+    CPolynomial polynom1 = {std::vector<double>{1, 2, 3}};
+    CPolynomial polynom2 = {std::vector<double>{2, 3, 4}};
+    CPolynomial polynom3 = polynom2 - polynom1;
+    std::cout << polynom1 << "\n" << polynom2 << "\n" << polynom3<< std::endl;
     return 0;
 }
