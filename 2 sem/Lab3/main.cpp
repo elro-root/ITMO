@@ -294,4 +294,4 @@ int main() {
     std::cout << "Улица " << "\"" << str_max_street << "\"" << " имеет наибольшее количество остановок, целых  " << max_street << " штук." << std::endl;
     std::cout << std::endl;
     return 0;
-}
+} //aproved
