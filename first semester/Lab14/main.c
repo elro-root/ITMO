@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <sys/stat.h>
+#include "bmp.h"
 static const char *optString = "iomd";
 
 static const struct option longOpts[] = {
@@ -11,74 +13,26 @@ static const struct option longOpts[] = {
         {"dump_freq", required_argument, NULL, 'd'}
 };
 
-int **arr_malloc(unsigned long height, unsigned long width){ // Функция динамческого выделения памяти под двумерный массив
-    int **ARR = (int **) malloc(height * sizeof(int *));
-    for (int i = 0; i < height; i++)
-    {
-        ARR[i] = (int *) malloc(width * sizeof(int));
-    }
-    return ARR;
-}
-void arr_free(int ** arr, unsigned long height){
-    for (int i = 0; i < height; i++){
-        free(arr[i]);
-    }
-    free(arr);
-}
-int neighborCounter(int **area, int x, int y){ // Фукция посчёта кол-ва соседий x y
-    int sum = 0;
-    for (int i = x - 1; i <= x + 1; i++){
-        for (int j = y - 1; j <= y + 1; j++){
-            sum += area[i][j];
-        }
-    }
-    if (area[x][y] == 1){
-        sum--;
-    }
-    return sum;
-}
-unsigned char *matrix_to_str(int **matrix, unsigned long height, unsigned long width){
-    unsigned char *info_on_pix = (unsigned char *) malloc(height * width * 3);
-    int m = 0;
-    for (int i = height - 1; i >= 0; i--){
-        for (int j = 0; j < width; j++){
-            if (matrix[i][j] == 1)
-            { //задача цвета для живых пикселей
-                info_on_pix[m] = 0; // синий
-                info_on_pix[m + 1] = 100; // зелёный
-                info_on_pix[m + 2] = 255; // красный
-            } else
-            { // задача цвета для заднего фона (неживых пикселей)
-                info_on_pix[m] = 0; // синий
-                info_on_pix[m + 1] = 0; // зелёный
-                info_on_pix[m + 2] = 0; // красный
-            }
-            m += 3;
-        }
-    }
-    return info_on_pix;
-}
-
 int main(int argc, char *argv[]){
-    FILE* image;
-    long dump_freq = 1, max_iter = 1;
-    char  *input_file_name, *dir_name;
-    unsigned long height, width, size;
-    unsigned char header[54];
-    int **current_generation, **next_generation;
+    BMPHeader header;
+    int height, width, size, max_iter, dump_freq = 1;
+    max_iter = 2147483647; // максимальное кол-во для поколений
+    char* dir_name = NULL;
+    FILE* in = NULL;
+    int **current_generation;
     int opt = getopt_long(argc, argv, optString, longOpts, NULL);
     while (opt != -1){
         switch (opt) {
             case 'i':
-                input_file_name = optarg;
-                image = fopen(input_file_name, "rb");
-                if (!image){
+                in = fopen(optarg, "rb");
+                if (!in){
                     printf("i cant open file, sorry");
                     exit(0);
                 }
                 break;
             case 'o':
                 dir_name = optarg;
+                mkdir(dir_name, 0777);
                 break;
             case 'm':
                 max_iter = strtol(optarg, NULL, 10);
@@ -91,89 +45,71 @@ int main(int argc, char *argv[]){
         }
         opt = getopt_long(argc, argv, optString, longOpts, NULL);
     }
-    fread(header, sizeof(unsigned char ), 54, image);
-    // считываем из заголовка параметров изображения путем побитового прибавления значений байтов со смещением
-    size = header[0x5] << 24 | header[0x4] << 16 | header[0x3] << 8 | header[0x2];
-    width = header[0x15] << 24 | header[0x14] << 16 | header[0x13] << 8 | header[0x12];
-    height = header[0x19] << 24 | header[0x18] << 16 | header[0x17] << 8 | header[0x16];
-    printf("size = %lu\nheight = %lu\nwidth = %lu\n\n", size, height, width); // выводим основные параметры bmp изображения
-    current_generation = arr_malloc(height, width * 3);
-    next_generation = arr_malloc(height,  width * 3);
-    fseek(image, 54, SEEK_SET);
-    char buffer[3]; // записываем значения пикселей в двумерный массив
-    for (int i = height - 1; i >= 0; i--)
-    {
-        for (int j = 0; j < width; j++){
-            buffer[0] = fgetc(image);
-            buffer[1] = fgetc(image);
-            buffer[2] = fgetc(image);
-
-            if (buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 0)
+    fread(&header, sizeof(header), 1, in);
+    width = header.width_px;
+    height = header.height_px;
+    size = header.size;
+    unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
+    fread(data, sizeof(unsigned char), size, in);
+    printf("size = %d\nheight = %d\nwidth = %d\n\n", size, height, width); // выводим основные параметры bmp изображения
+    current_generation = gen_malloc(height, width);
+    int m = 0;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            if (data[m] == 0)
                 current_generation[i][j] = 1;
             else
                 current_generation[i][j] = 0;
+            m += 3;
         }
+        m += width % 4;
     }
-    char fileName[10]; // выделение памяти для массивов выходных данных
+    char num[10]; // выделение памяти для массивов выходных данных
     char directory[256];
-    unsigned char *pixelInfo; 
-    for (unsigned long i = 0; i < height; i++){ // копирование информации о начально поколении для последующего редактирования
-        for (unsigned long j = 0; j < width; j++)
-            next_generation[i][j] = current_generation[i][j];
+    char* name = "Generation ";
+    for (int g = 1; g <= max_iter; g++) { // создаание новых поколений и вывод их в файл
+        current_generation = GOFL(current_generation, height, width);
+        if (g % dump_freq != 0) // создание output файла если номер итерации соответствует частоте
+            continue;
+        // адрес сохраняемого файла
+        sprintf(num, "%d", g); // приведение номера итерации к строковому типу для задания имени файла
+        strcpy(directory, dir_name); // название директории считанное с коммандной строки
+        strcat(directory, "/");
+        strcat(directory, name);
+        strcat(directory, num);
+        strcat(directory, ".bmp");
+        FILE *out = fopen(directory, "wb"); // Создание output файла
+        if (out == NULL){
+            printf("Generation %d wasn't created\n", g);
+            return EXIT_FAILURE;
+        }
+         // записываем в output файл значений заголовка (не изменяется) и значений пикселей
+        m = 0;
+        for (int i = 0; i < height; i++) { //преобразовываем массив из нулей и единиц в байтовый массив пикселей
+            for (int j = 0; j < width; j++) {
+                if (current_generation[i][j] == 1) {
+                    data[m] = 0;
+                    data[m + 1] = 0;
+                    data[m + 2] = 0;
+                } //цвет живых клеток
+                else {
+                    data[m] = 255;
+                    data[m + 1] = 255;
+                    data[m + 2] = 255;
+                }//цвет фона
+                m += 3;
+            }
+            while (m % 4 != 0) {
+                data[m] = 0; //дозаписываем конец строки теми самыми пустыми байтами для того, чтобы строка была кратна 4 байтам
+                m++;
+            }
+        }
+        fwrite(&header, header.offset, 1, out);
+        fseek(out, 54, SEEK_SET);
+        fwrite(data, sizeof(unsigned char), size, out);//аналогично fread. Записывает data размером size в out
+        fclose(out);//закрываем файл записи
     }
-    int countOfNeighbors;
-    for (int gameIteration = 0; gameIteration < max_iter; gameIteration++) // создаание новых поколений и вывод их в файл
-    {
-        for (unsigned long i = 1; i < height - 1; i++) // изменение след. покаления в соответсвиями с правилами игры
-        {
-            for (unsigned long j = 1; j < width - 1; j++)
-            {
-                countOfNeighbors = neighborCounter(current_generation, i, j);
-                if (current_generation[i][j] == 0 && countOfNeighbors == 3)
-                {
-                    next_generation[i][j] = 1;
-                }
-                else if (current_generation[i][j] == 1)
-                {
-                    if (countOfNeighbors < 2 || countOfNeighbors > 3)
-                    {
-                        next_generation[i][j] = 0;
-                    }
-                }
-            }
-        }
-        for (unsigned long i = 0; i < height; i++) // обновление новосгенерированного покаления
-        {
-            for (unsigned long j = 0; j < width; j++)
-            {
-                current_generation[i][j] = next_generation[i][j];
-            }
-        }
-        pixelInfo = matrix_to_str(current_generation, height, width); // перевод информации о пикселях из двумерного массива в строку
-        if (gameIteration % dump_freq == 0) // создание output файла если номер итерации соответствует частоте
-        {
-            // адрес сохраняемого файла
-            sprintf(fileName, "%d", gameIteration); // приведение номера итерации к строковому типу для задания имени файла
-            strcpy(directory, dir_name); // название директории считанное с коммандной строки
-            strcat(directory, "/");
-            strcat(directory, fileName);
-            strcat(directory, ".bmp");
-            FILE *new_bmp = fopen(directory, "wb"); // Создание output файла
-            if (new_bmp != NULL)
-            {
-                printf("File number %d was created\n", gameIteration);
-            }
-            else
-            {
-                printf("File number %d wasn't created\n", gameIteration);
-            }
-            fseek(new_bmp, 0, SEEK_SET);
-            fwrite(header, 1, 54, new_bmp); // записываем в output файл значений заголовка (не изменяется) и значений пикселей
-            fwrite(pixelInfo, 1, 3 * width * height, new_bmp);
-        }
-    }
-    arr_free(current_generation, height);
-    arr_free(next_generation, height);
-    free(pixelInfo);
+    gen_free(current_generation, height);
+    free(data);
     return 0;
 }
