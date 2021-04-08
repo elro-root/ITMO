@@ -45,42 +45,42 @@ int count_nbr (int** grid, int x, int y, int height, int width) {
     int n_count = 0;
     if (y-1 >= 0 && x-1 >= 0) {
         if (grid[y-1][x-1] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (y-1 >= 0) {
         if(grid[y-1][x] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (y-1 >= 0 && x+1 < width) {
         if(grid[y-1][x+1] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (x-1 >= 0) {
         if(grid[y][x-1] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (x+1 < width) {
         if(grid[y][x+1] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (y+1 < height && x-1 >=0) {
         if(grid[y+1][x-1] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (y+1 < height) {
         if(grid[y+1][x] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     if (y+1 < height && x+1 < width) {
         if(grid[y+1][x+1] >= 1)
-            n_count++;
+            n_count += 1;
     }
 
     return n_count;
@@ -88,8 +88,8 @@ int count_nbr (int** grid, int x, int y, int height, int width) {
 
 int** GOFL(int** cur_gen, int height, int width) { //в аргументы функции приходят массив настоящего поколения, высота и ширина
     int** next_gen = gen_malloc(height, width);
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
             next_gen[i][j] = cur_gen[i][j];
             int count = count_nbr(cur_gen, j, i, height, width);
             if (next_gen[i][j] == 0 && count == 3)

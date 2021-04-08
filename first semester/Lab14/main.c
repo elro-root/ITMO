@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
         current_generation = next_generation;
         ++g;
     }
-    printf("End of game, created %d generation\n", g - 1);
+    printf("End of game, created %d generation.\n", g - 1);
     gen_free(current_generation, height);
     free(data);
     return 0;
