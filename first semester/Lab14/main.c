@@ -19,7 +19,6 @@ int main(int argc, char *argv[]){
     max_iter = 2147483647; // максимальное кол-во для поколений
     char* dir_name = NULL;
     FILE* in = NULL;
-    int **current_generation;
     int opt = getopt_long(argc, argv, optString, longOpts, NULL);
     while (opt != -1){
         switch (opt) {
@@ -51,12 +50,12 @@ int main(int argc, char *argv[]){
     size = header.size;
     unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
     fread(data, sizeof(unsigned char), size, in);
-    printf("size = %d\nheight = %d\nwidth = %d\n\n", size, height, width); // выводим основные параметры bmp изображения
-    current_generation = gen_malloc(height, width);
+    int** current_generation = gen_malloc(height, width);
+    int** next_generation = gen_malloc(height, width);
     int m = 0;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            if (data[m] == 0)
+            if (data[m] != 255 || data[m + 1] != 255 || data[m + 2] != 255)
                 current_generation[i][j] = 1;
             else
                 current_generation[i][j] = 0;
@@ -68,7 +67,11 @@ int main(int argc, char *argv[]){
     char directory[256];
     char* name = "Generation ";
     for (int g = 1; g <= max_iter; g++) { // создаание новых поколений и вывод их в файл
-        current_generation = GOFL(current_generation, height, width);
+        next_generation = GOFL(current_generation, height, width);
+        if (!check(current_generation, next_generation, height, width)){
+            printf("End of game\n");
+            return 0;
+        }
         if (g % dump_freq != 0) // создание output файла если номер итерации соответствует частоте
             continue;
         // адрес сохраняемого файла
@@ -87,7 +90,7 @@ int main(int argc, char *argv[]){
         m = 0;
         for (int i = 0; i < height; i++) { //преобразовываем массив из нулей и единиц в байтовый массив пикселей
             for (int j = 0; j < width; j++) {
-                if (current_generation[i][j] == 1) {
+                if (next_generation[i][j] == 1) {
                     data[m] = 0;
                     data[m + 1] = 0;
                     data[m + 2] = 0;
@@ -108,6 +111,7 @@ int main(int argc, char *argv[]){
         fseek(out, 54, SEEK_SET);
         fwrite(data, sizeof(unsigned char), size, out);//аналогично fread. Записывает data размером size в out
         fclose(out);//закрываем файл записи
+        current_generation = next_generation;
     }
     gen_free(current_generation, height);
     free(data);

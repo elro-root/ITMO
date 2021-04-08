@@ -53,7 +53,7 @@ unsigned count_nbr (int** grid, int i, int j, int height, int width) {
             n_count++;
     }
 
-    if (i-1 >= 0 && j+1 < height) {
+    if (i-1 >= 0 && j+1 < width) {
         if(grid[i-1][j+1] >= 1)
             n_count++;
     }
@@ -63,22 +63,22 @@ unsigned count_nbr (int** grid, int i, int j, int height, int width) {
             n_count++;
     }
 
-    if (j+1 < height) {
+    if (j+1 < width) {
         if(grid[i][j+1] >= 1)
             n_count++;
     }
 
-    if (i+1 < width && j-1 >=0) {
+    if (i+1 < height && j-1 >=0) {
         if(grid[i+1][j-1] >= 1)
             n_count++;
     }
 
-    if (i+1 < width) {
+    if (i+1 < height) {
         if(grid[i+1][j] >= 1)
             n_count++;
     }
 
-    if (i+1 < width && j+1 < height) {
+    if (i+1 < height && j+1 < width) {
         if(grid[i+1][j+1] >= 1)
             n_count++;
     }
@@ -90,16 +90,23 @@ int** GOFL(int** cur_gen, int height, int width) { //в аргументы фу�
     int** next_gen = gen_malloc(height, width);
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            next_gen[i][j] = 0;
+            next_gen[i][j] = cur_gen[i][j];
             int count = count_nbr(cur_gen, i, j, height, width);
-            if (count < 2 || count > 3) //точка умирает, если соседей меньше двух или больше трех
+            if (next_gen[i][j] == 0 && count == 3)
+                next_gen[i][j] = 1;
+            if (next_gen[i][j] == 1 && (count < 2 || count > 3))
                 next_gen[i][j] = 0;
-            if (count == 2)//остается неизменной, если соседей 2
-                next_gen[i][j] = cur_gen[i][j];
-            if (count == 3)
-                next_gen[i][j] = 1;//рождается, если соседей 3
         }
     }
     return next_gen;//возвращаем матрицу пикселей
+}
+int check(int** prev_gen, int** cur_gen, int height, int width){
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (prev_gen[i][j] != cur_gen[i][j])
+                return 1;
+        }
+    }
+    return 0;
 }
 #endif //LAB14_BMP_H
