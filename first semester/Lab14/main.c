@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
     height = header.height_px;
     size = header.size;
     unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
-    fread(data, sizeof(unsigned char), size, in);
+    fread(data, size - 54, 1, in);
     int** current_generation = gen_malloc(height, width);
     int m = 0;
     for (int i = 0; i < height; i++) {
