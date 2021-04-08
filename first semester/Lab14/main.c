@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
             case 'i':
                 in = fopen(optarg, "rb");
                 if (!in){
-                    printf("i cant open file, sorry");
+                    printf("i cant open input file, sorry");
                     exit(0);
                 }
                 break;
@@ -51,10 +51,11 @@ int main(int argc, char *argv[]){
     size = header.size;
     unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
     fread(data, size - sizeof(header), 1, in);
+    fclose(in);
     int** current_generation = gen_malloc(height, width);
     int m = 0;
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
             if (data[m] != 255 || data[m + 1] != 255 || data[m + 2] != 255)
                 current_generation[i][j] = 1;
             else
@@ -70,7 +71,6 @@ int main(int argc, char *argv[]){
     while (max_iter == -1 || g <= max_iter) {// создаание новых поколений и вывод их в файл
         int** next_generation = GOFL(current_generation,  height, width);
         if (!check(current_generation, next_generation, height, width)){
-            printf("End of game, created %d generation\n", g - 1);
             gen_free(next_generation, height);
             break;
         }
@@ -85,12 +85,14 @@ int main(int argc, char *argv[]){
         strcat(directory, ".bmp");
         FILE *out = fopen(directory, "wb"); // Создание output файла
         if (out == NULL){
-            printf("Generation %d wasn't created\n", g);
-            return EXIT_FAILURE;
+            printf("i can open output file, sorry\n");
+            gen_free(next_generation, height);
+            break;
         }
         m = 0;
-        for (int i = 0; i < height; i++) { //преобразовываем массив из нулей и единиц в байтовый массив пикселей
-            for (int j = 0; j < width; j++) {
+
+        for (int i = 0; i < height; ++i) { //преобразовываем массив из нулей и единиц в байтовый массив пикселей
+            for (int j = 0; j < width; ++j) {
                 if (next_generation[i][j] == 1) {
                     data[m] = 0;
                     data[m + 1] = 0;
@@ -105,14 +107,14 @@ int main(int argc, char *argv[]){
             }
             while (m % 4 != 0) {
                 data[m] = 0; //выравнивание строки для кратности ее 4
-                m++;
+                ++m;
             }
         }
         fwrite(&header, sizeof(header), 1, out);
         fwrite(data, size - sizeof(header), 1, out);
         fclose(out);
         current_generation = next_generation;
-        g++;
+        ++g;
     }
     printf("End of game, created %d generation\n", g - 1);
     gen_free(current_generation, height);
