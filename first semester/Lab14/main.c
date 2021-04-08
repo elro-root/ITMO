@@ -51,7 +51,6 @@ int main(int argc, char *argv[]){
     unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
     fread(data, sizeof(unsigned char), size, in);
     int** current_generation = gen_malloc(height, width);
-    int** next_generation = gen_malloc(height, width);
     int m = 0;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -67,10 +66,11 @@ int main(int argc, char *argv[]){
     char directory[256];
     char* name = "Generation ";
     for (int g = 1; g <= max_iter; g++) { // создаание новых поколений и вывод их в файл
-        next_generation = GOFL(current_generation, height, width);
+        int** next_generation = GOFL(current_generation,  height, width);
         if (!check(current_generation, next_generation, height, width)){
-            printf("End of game\n");
-            return 0;
+            printf("End of game, created %d generation\n", g - 1);
+            gen_free(next_generation, height);
+            break;
         }
         if (g % dump_freq != 0) // создание output файла если номер итерации соответствует частоте
             continue;
@@ -109,11 +109,12 @@ int main(int argc, char *argv[]){
         }
         fwrite(&header, header.offset, 1, out);
         fseek(out, 54, SEEK_SET);
-        fwrite(data, sizeof(unsigned char), size, out);//аналогично fread. Записывает data размером size в out
-        fclose(out);//закрываем файл записи
+        fwrite(data, sizeof(unsigned char), size, out);
+        fclose(out);
         current_generation = next_generation;
     }
     gen_free(current_generation, height);
+    //gen_free(next_generation, height);
     free(data);
     return 0;
 }

@@ -41,7 +41,7 @@ void gen_free(int** gen, int height){
     free(gen);
 }
 
-unsigned count_nbr (int** grid, int i, int j, int height, int width) {
+int count_nbr (int** grid, int i, int j, int height, int width) {
     int n_count = 0;
     if (i-1 >= 0 && j-1 >= 0) {
         if (grid[i-1][j-1] >= 1)
@@ -98,7 +98,7 @@ int** GOFL(int** cur_gen, int height, int width) { //в аргументы фу�
                 next_gen[i][j] = 0;
         }
     }
-    return next_gen;//возвращаем матрицу пикселей
+    return next_gen;
 }
 int check(int** prev_gen, int** cur_gen, int height, int width){
     for (int i = 0; i < height; ++i) {
