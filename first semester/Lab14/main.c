@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
-#include <sys/stat.h>
+#include <getopt.h> //для считывания аругментов комндой строки
+#include <sys/stat.h> //для создания папки mkdir()
 #include "bmp.h"
 static const char *optString = "iomd";
 
@@ -15,8 +15,9 @@ static const struct option longOpts[] = {
 
 int main(int argc, char *argv[]){
     BMPHeader header;
-    int height, width, size, max_iter, dump_freq = 1;
-    max_iter = 2147483647; // максимальное кол-во для поколений
+    int max_iter = -1, dump_freq = 1;
+    uint32_t size;
+    int32_t height, width;
     char* dir_name = NULL;
     FILE* in = NULL;
     int opt = getopt_long(argc, argv, optString, longOpts, NULL);
@@ -49,7 +50,7 @@ int main(int argc, char *argv[]){
     height = header.height_px;
     size = header.size;
     unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
-    fread(data, size - 54, 1, in);
+    fread(data, size - sizeof(header), 1, in);
     int** current_generation = gen_malloc(height, width);
     int m = 0;
     for (int i = 0; i < height; i++) {
@@ -65,7 +66,8 @@ int main(int argc, char *argv[]){
     char num[10]; // выделение памяти для массивов выходных данных
     char directory[256];
     char* name = "Generation ";
-    for (int g = 1; g <= max_iter; g++) { // создаание новых поколений и вывод их в файл
+    int g = 1;
+    while (max_iter == -1 || g <= max_iter) {// создаание новых поколений и вывод их в файл
         int** next_generation = GOFL(current_generation,  height, width);
         if (!check(current_generation, next_generation, height, width)){
             printf("End of game, created %d generation\n", g - 1);
@@ -86,7 +88,6 @@ int main(int argc, char *argv[]){
             printf("Generation %d wasn't created\n", g);
             return EXIT_FAILURE;
         }
-         // записываем в output файл значений заголовка (не изменяется) и значений пикселей
         m = 0;
         for (int i = 0; i < height; i++) { //преобразовываем массив из нулей и единиц в байтовый массив пикселей
             for (int j = 0; j < width; j++) {
@@ -103,18 +104,18 @@ int main(int argc, char *argv[]){
                 m += 3;
             }
             while (m % 4 != 0) {
-                data[m] = 0; //дозаписываем конец строки теми самыми пустыми байтами для того, чтобы строка была кратна 4 байтам
+                data[m] = 0; //выравнивание строки для кратности ее 4
                 m++;
             }
         }
-        fwrite(&header, header.offset, 1, out);
-        fseek(out, 54, SEEK_SET);
-        fwrite(data, sizeof(unsigned char), size, out);
+        fwrite(&header, sizeof(header), 1, out);
+        fwrite(data, size - sizeof(header), 1, out);
         fclose(out);
         current_generation = next_generation;
+        g++;
     }
+    printf("End of game, created %d generation\n", g - 1);
     gen_free(current_generation, height);
-    //gen_free(next_generation, height);
     free(data);
     return 0;
 }
