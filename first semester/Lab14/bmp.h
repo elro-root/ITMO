@@ -86,7 +86,7 @@ int count_nbr (int** grid, int x, int y, int height, int width) {
     return n_count;
 }
 
-int** GOFL(int** cur_gen, int height, int width) { //в аргументы функции приходят массив настоящего поколения, высота и ширина
+int** GOFL(int** cur_gen, int height, int width) {
     int** next_gen = gen_malloc(height, width);
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {

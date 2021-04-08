@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
     width = header.width_px;
     height = header.height_px;
     size = header.size;
-    unsigned char* data = (unsigned char*) malloc((size - 54) * sizeof(unsigned char));
+    unsigned char* data = (unsigned char*) malloc((size - sizeof(header)) * sizeof(unsigned char));
     fread(data, size - sizeof(header), 1, in);
     fclose(in);
     int** current_generation = gen_malloc(height, width);
@@ -64,9 +64,9 @@ int main(int argc, char *argv[]){
         }
         m += width % 4;
     }
-    char num[10]; // выделение памяти для массивов выходных данных
+    char gen_num[10];
     char directory[256];
-    char* name = "Generation ";
+    char name[30] = "Generation ";
     int g = 1;
     while (max_iter == -1 || g <= max_iter) {// создаание новых поколений и вывод их в файл
         int** next_generation = GOFL(current_generation,  height, width);
@@ -77,11 +77,11 @@ int main(int argc, char *argv[]){
         if (g % dump_freq != 0) // создание output файла если номер итерации соответствует частоте
             continue;
         // адрес сохраняемого файла
-        sprintf(num, "%d", g); // приведение номера итерации к строковому типу для задания имени файла
+        sprintf(gen_num, "%d", g); // приведение номера итерации к строковому типу для задания имени файла
         strcpy(directory, dir_name); // название директории считанное с коммандной строки
         strcat(directory, "/");
         strcat(directory, name);
-        strcat(directory, num);
+        strcat(directory, gen_num);
         strcat(directory, ".bmp");
         FILE *out = fopen(directory, "wb"); // Создание output файла
         if (out == NULL){
