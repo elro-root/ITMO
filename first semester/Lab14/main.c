@@ -68,7 +68,7 @@ int main(int argc, char *argv[]){
     char directory[256];
     char name[30] = "Generation ";
     int g = 1;
-    while (max_iter == -1 || g <= max_iter) {
+    while (g <= max_iter) {
         int** next_generation = GOFL(current_generation,  height, width);
         if (!check(current_generation, next_generation, height, width)){
             gen_free(next_generation, height);
