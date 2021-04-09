@@ -68,22 +68,22 @@ int main(int argc, char *argv[]){
     char directory[256];
     char name[30] = "Generation ";
     int g = 1;
-    while (max_iter == -1 || g <= max_iter) {// создаание новых поколений и вывод их в файл
+    while (max_iter == -1 || g <= max_iter) {
         int** next_generation = GOFL(current_generation,  height, width);
         if (!check(current_generation, next_generation, height, width)){
             gen_free(next_generation, height);
             break;
         }
-        if (g % dump_freq != 0) // создание output файла если номер итерации соответствует частоте
+        if (g % dump_freq != 0)
             continue;
         // адрес сохраняемого файла
-        sprintf(gen_num, "%d", g); // приведение номера итерации к строковому типу для задания имени файла
-        strcpy(directory, dir_name); // название директории считанное с коммандной строки
+        sprintf(gen_num, "%d", g);
+        strcpy(directory, dir_name);
         strcat(directory, "/");
         strcat(directory, name);
         strcat(directory, gen_num);
         strcat(directory, ".bmp");
-        FILE *out = fopen(directory, "wb"); // Создание output файла
+        FILE *out = fopen(directory, "wb");
         if (out == NULL){
             printf("i can open output file, sorry\n");
             gen_free(next_generation, height);
