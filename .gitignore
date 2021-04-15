@@ -1,0 +1,14 @@
+**/.idea/
+**/cmake-build-debug/
+**/.gitignore
+Programming/lecture
+**/*.mp4
+2\ \sem/reports/
+Linear Algebra/
+Discrete mathematics/
+Sport/
+Math/
+English/
+dorm/
+ЭВМ/
+**/venv/
