@@ -87,11 +87,28 @@ namespace boo {
     }
 
     template<class InputIterator, class Find>
-    auto find_not(InputIterator first, InputIterator last, const Find& find) {
-        for (; first != last; ++first)
+    int find_not(InputIterator first, InputIterator last, const Find& find) {
+        for (int i = 0; first != last; ++first, ++i)
             if (*first != find)
-                return *first;
-        return *last;
+                return ++i;
+        return 0;
+    }
+
+    template<class InputIterator, class Find>
+    int find_backward(InputIterator first, InputIterator last, const Find& find){
+        for (int i = 0; last != first; --last, ++i)
+            if (*last == find)
+                return i;
+        return 0;
+    }
+
+    template<class array>
+    bool is_palindrome(const array in){
+        auto in_copy = in;
+        std::reverse(in_copy.begin(), in_copy.end());
+        if (in != in_copy)
+            return false;
+        return true;
     }
 }
 
@@ -101,8 +118,9 @@ int main(){
         std::cout << i << " ";
     }
     if (boo::one_of(array.begin(), array.end(), [](int i){return i % 3 == 0;})){
-        std::cout << std::endl << "3 " ;
+        std::cout << std::endl << "3\n" ;
     }
+    std::cout << boo::find_backward(array.begin(), array.end(), 71) << "\n";
     std::cout << boo::find_not(array.begin(), array.end(), 1.25) << "\n\n";
 
     std::vector<int> digits{5, 4, 3, 2, 0, 1};
@@ -135,6 +153,9 @@ int main(){
     }
     std::cout << "\n";
     std::cout << boo::is_partitioned(v.begin(), v.end(), is_even) << '\n';
-    std::cout << boo::is_partitioned(v.rbegin(), v.rend(), is_even) << '\n';
+    std::cout << boo::is_partitioned(v.rbegin(), v.rend(), is_even) << "\n\n";
+    std::string abc =  "abcbab";
+    std::vector<int> a {1, 2, 3, 2, 1};
+    std::cout << boo::is_palindrome(abc);
     return 0;
 }
