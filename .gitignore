@@ -1,4 +1,5 @@
 **/.idea/
+.gitignore
 **/cmake-build-debug/
 **/.gitignore
 Programming/lecture
