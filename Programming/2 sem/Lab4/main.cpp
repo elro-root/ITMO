@@ -1,161 +1,97 @@
 #include <iostream>
-#include <iterator>
 #include <vector>
-namespace boo {
-    template<class InputIterator, class Predicate>
-    bool all_of(InputIterator first, InputIterator last, Predicate pred) {
-        for (; first != last; ++first)
-            if (!pred(*first))
-                return false;
-        return true;
-    }
-
-    template<class InputIterator, class Predicate>
-    bool any_of(InputIterator first, InputIterator last, Predicate pred) {
-        for (; first != last; ++first)
-            if (pred(*first))
-                return true;
-        return false;
-    }
-
-    template<class InputIterator, class Predicate>
-    bool none_of(InputIterator first, InputIterator last, Predicate pred) {
-        return !all_of(first, last, pred);
-    }
-
-    template<class InputIterator, class Predicate>
-    bool one_of(InputIterator first, InputIterator last, Predicate pred) {
-        bool flag = false;
-        for (; first != last; ++first) {
-            if (pred(*first) && !flag)
-                flag = true;
-            else if (pred(*first) && flag)
-                return false;
-        }
-        return flag;
-    }
-
-    template <class InputIterator>
-    bool is_sorted(InputIterator first, InputIterator last) {
-        ++first;
-        if (*first >= *(first - 1)){
-            for (; first != last; ++first) {
-                if (*first >= *(first - 1))
-                    continue;
-                else
-                    return false;
-            }
-            return true;
-        } else{
-            for (; first != last; ++first) {
-                if (*first <= *(first - 1))
-                    continue;
-                else
-                    return false;
-            }
-            return true;
-        }
-    }
-
-    template<class InputIterator, class Predicate>
-    bool is_partitioned(InputIterator first, InputIterator last, Predicate pred) {
-        bool flag = true;
-        InputIterator fr = first;
-        InputIterator ls = last;
-        if (first == last)
-            return flag;
-        for (; first != last; ++first)
-            if (!pred(*first))
-                break;
-        ++first;
-        for (; first != last; ++first)
-            if (pred(*first))
-                flag = false;
-        if (flag)
-            return flag;
-        flag = true;
-        last = ls;
-        first = fr;
-        for (; last != first; --last)
-            if (!pred(*last))
-                break;
-        --last;
-        for (; last != first; --last)
-            if (pred(*last))
-                flag = false;
-        return flag;
-    }
-
-    template<class InputIterator, class Find>
-    int find_not(InputIterator first, InputIterator last, const Find& find) {
-        for (int i = 0; first != last; ++first, ++i)
-            if (*first != find)
-                return ++i;
-        return 0;
-    }
-
-    template<class InputIterator, class Find>
-    int find_backward(InputIterator first, InputIterator last, const Find& find){
-        for (int i = 0; last != first; --last, ++i)
-            if (*last == find)
-                return i;
-        return 0;
-    }
-
-    template<class array>
-    bool is_palindrome(const array in){
-        auto in_copy = in;
-        std::reverse(in_copy.begin(), in_copy.end());
-        if (in != in_copy)
-            return false;
-        return true;
-    }
-}
+#include "algorithms.hpp"
+#include "test_class.hpp"
 
 int main(){
-    std::vector<double> array {1.25, 2.45, 3, 4, 5, 7, 8};
+    std::vector<double> array {-1.25, 2.45, 3, 4, 5, 7, 8, 11};
+
+    std::cout << "vector: ";
     for (auto &i:array) {
         std::cout << i << " ";
     }
-    if (boo::one_of(array.begin(), array.end(), [](int i){return i % 3 == 0;})){
-        std::cout << std::endl << "3\n" ;
-    }
-    std::cout << boo::find_backward(array.begin(), array.end(), 71) << "\n";
-    std::cout << boo::find_not(array.begin(), array.end(), 1.25) << "\n\n";
+    std::cout << std::endl;
 
-    std::vector<int> digits{5, 4, 3, 2, 0, 1};
+    if (boom::all_of(array.begin(), array.end(), [](int i){return i > 0;}))
+        std::cout << "all of is bigger than 0" << std::endl;
+    else
+        std::cout << "all of isn't bigger than 0" << std::endl;
+    if (boom::any_of(array.begin(), array.end(), [](int i){return i > 0;}))
+        std::cout << "any of is bigger than 0" << std::endl;
+    else
+        std::cout << "any of isn't bigger than 0" << std::endl;
+    if (boom::none_of(array.begin(), array.end(), [](int i){return i > 0;}))
+        std::cout << "none of is bigger than 0" << std::endl;
+    else
+        std::cout << "none of isn't bigger than 0" << std::endl;
 
-    for (auto i : digits) std::cout << i << ' ';
-    std::cout << ": is_sorted: " << std::boolalpha
-              << boo::is_sorted(digits.begin(), digits.end()) << '\n';
+    if (boom::one_of(array.begin(), array.end(), boom::unary_predicate<double>))
+        std::cout << "one of is bigger than 10" << std::endl;
+    else
+        std::cout << "no one of is bigger than 10" << std::endl;
 
-    std::sort(std::begin(digits), std::end(digits));
+    if (boom::is_sorted(array.begin(), array.end()))
+        std::cout << "sorted" << std::endl;
+    else
+        std::cout << "not sorted" << std::endl;
 
-    for (auto i : digits) std::cout << i << ' ';
-    std::cout << ": is_sorted: "
-              << boo::is_sorted(digits.begin(), digits.end()) << '\n';
-    std::vector<int> v{ 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    if (boom::is_partitioned(array.begin(), array.end(), [](int i){return i > 4 == 0;}))
+        std::cout << "partitioned" << std::endl;
+    else
+        std::cout << "not partitioned" << std::endl;
 
-    auto is_even = [](int i){ return i % 2 == 0; };
-    auto is_odd = [](int i){return i % 2 != 0;};
-    std::cout.setf(std::ios_base::boolalpha);
-    std::cout << boo::is_partitioned(v.begin(), v.end(), is_even) << '\n';
+    std::cout << "find not: " << boom::find_not(array.begin(), array.end(), 4) << std::endl;
 
-    std::partition(v.begin(), v.end(), is_even);
-    for (auto &i:v) {
-        std::cout << i << " ";
-    }
-    std::cout << "\n" << boo::is_partitioned(v.begin(), v.end(), is_even) << '\n';
+    std::cout << "find back: " << boom::find_backward(array.begin(), array.end(), 4) << std::endl;
 
-    std::reverse(v.begin(), v.end());
-    for (auto &i:v) {
-        std::cout << i << " ";
-    }
-    std::cout << "\n";
-    std::cout << boo::is_partitioned(v.begin(), v.end(), is_even) << '\n';
-    std::cout << boo::is_partitioned(v.rbegin(), v.rend(), is_even) << "\n\n";
-    std::string abc =  "abcbab";
-    std::vector<int> a {1, 2, 3, 2, 1};
-    std::cout << boo::is_palindrome(abc);
+    if (boom::is_palindrome(array.begin(), array.end(), boom::binary_predicate<double>))
+        std::cout << "palindrome" << std::endl;
+    else
+        std::cout << "not palindrome" << std::endl;
+
+    Vector<int> a(3);
+    a[0] = 5;
+    a[1] = 9;
+    a[2] = 41;
+    std::cout << "test class" << std::endl;
+
+    if (boom::all_of(a.begin(), a.end(), [](int i){return i > 6;}))
+        std::cout << "all of is bigger than 6" << std::endl;
+    else
+        std::cout << "all of isn't bigger than 6" << std::endl;
+
+    if (boom::any_of(a.begin(), a.end(), [](int i){return i > 0;}))
+        std::cout << "any of is bigger than 0" << std::endl;
+    else
+        std::cout << "any of isn't bigger than 0" << std::endl;
+    if (boom::none_of(a.begin(), a.end(), [](int i){return i > 0;}))
+        std::cout << "none of is bigger than 0" << std::endl;
+    else
+        std::cout << "none of isn't bigger than 0" << std::endl;
+
+    if (boom::one_of(a.begin(), a.end(), boom::unary_predicate<double>))
+        std::cout << "only one of is bigger than 10" << std::endl;
+    else
+        std::cout << "no only one of is bigger than 10" << std::endl;
+
+    if (boom::is_sorted(a.begin(), a.end()))
+        std::cout << "sorted" << std::endl;
+    else
+        std::cout << "not sorted" << std::endl;
+
+    if (boom::is_partitioned(a.begin(), a.end(), [](int i){return i > 4 == 0;}))
+        std::cout << "partitioned" << std::endl;
+    else
+        std::cout << "not partitioned" << std::endl;
+
+    std::cout << "find not: " << boom::find_not(a.begin(), a.end(), 4) << std::endl;
+
+    std::cout << "find back: " << boom::find_backward(a.begin(), a.end(), 41) << std::endl;
+
+    if (boom::is_palindrome(a.begin(), a.end(), boom::binary_predicate<double>))
+        std::cout << "palindrome" << std::endl;
+    else
+        std::cout << "not palindrome" << std::endl;
+
     return 0;
 }
