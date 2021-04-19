@@ -94,4 +94,4 @@ int main(){
         std::cout << "not palindrome" << std::endl;
 
     return 0;
-}
+} // approved
