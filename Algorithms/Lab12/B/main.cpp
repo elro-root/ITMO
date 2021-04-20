@@ -3,45 +3,44 @@
 #include <algorithm>
 #include "input.hpp"
 
-std::vector<long long > findLIS(std::vector<long long > a, unsigned long n) {
-    long long  d[n - 1];
-    long long  prev[n - 1];
-
-    for (long long  i = 0; i < n; ++i) {
-        d[i] = 1;
-        prev[i] = -1;
-        for (long long  j = 0; j < i; ++j)
-            if ( a[j] < a[i] && d[j] + 1 > d[i]) {
-                d[i] = d[j] + 1;
-                prev[i] = j;
-            }
-    }
-    long long  pos = 0;
-    long long  l = d[0];
-    for(long long  i = 0; i < n; ++i){
-        if (d[i] > l) {
-            pos = i;
-            l = d[i];
+std::vector<int> lis(std::vector<int> const& a) {
+    unsigned long n = a.size();
+    const int INF = 1e9;
+    std::vector<int> d(n+1, INF);
+    d[0] = -INF;
+    int pos[n];
+    int prev[n - 1];
+    pos[0] = -1;
+    long ans = 0;
+    for (int i = 0; i < n; i++) {
+        long j = upper_bound(d.begin(), d.end(), a[i]) - d.begin();
+        if (d[j-1] < a[i] && a[i] < d[j]){
+            d[j] = a[i];
+            pos[j] = i;
+            prev[i] = pos[j - 1];
+            ans = std::max(ans, j);
         }
     }
-    std::vector<long long > answer;
-    while(pos != -1) {
-        answer.push_back(a[pos]);
-        pos = prev[pos];
+
+    std::vector<int> answer;
+    int p = pos[ans];
+    while (p != -1){
+    answer.push_back(a[p]);
+    p = prev[p];
     }
-    std::reverse(answer.begin(), answer.end());
+    reverse(answer.begin(), answer.end());
     return answer;
 }
 
 int main() {
     input();
-    long long n;
+    int n;
     std::cin >> n;
-    std::vector<long long> array(n);
-    std::vector<long long> answer;
+    std::vector<int> array(n);
+    std::vector<int> answer;
     for (long long  i = 0; i < n; ++i)
         std::cin >> array[i];
-    answer = findLIS(array, n);
+    answer = lis(array);
     std::cout << answer.size() << std::endl;
     for (auto &i : answer){
         std::cout << i << " ";
