@@ -1,48 +1,75 @@
 #include<iostream>
+#include <vector>
 #include <string>
-//#include "input.hpp"
-std::string lcs(std::string X, std::string Y, unsigned long m, unsigned long n ) {
-    int L[2][n + 1];
-    bool bi;
-    for (int i = 0; i <= m; i++) {
-        bi = i & 1;
-        for (int j = 0; j <= n; j++) {
-            if (i == 0 || j == 0)
-                L[bi][j] = 0;
+#include <algorithm>
+#include "input.hpp"
 
-            else if (X[i-1] == Y[j-1]){
-                L[bi][j] = L[1 - bi][j - 1] + 1;
-            }
+std::vector<int> lcs(const std::string &x, const std::string &y) {
+    std::vector<int> curr(y.size() + 1, 0);
+    for (auto &i : x) {
+        std::vector<int> prev = curr;
+        for (int j = 0; j < y.size(); ++j) {
+            if (i == y[j])
+                curr[j + 1] = prev[j] + 1;
             else
-                L[bi][j] = std::max(L[1 - bi][j],
-                                    L[bi][j - 1]);
+                curr[j + 1] = std::max(curr[j], prev[j + 1]);
         }
     }
-    int index = L[bi][n];
-    std::string lcs(index, ' ');
-    unsigned long i = m, j = n;
-    while (i > 0 && j > 0) {
-        if (X[i-1] == Y[j-1]) {
-            lcs[index - 1] = X[i-1];
-            --i; --j; --index;
-        }
-        else if (L[1 - bi][j] > L[bi][j-1])
-            --i;
-        else
-            --j;
-        bi = i & 1;
-    }
-    return lcs;
+    return curr;
 }
-
-/* Driver program to test above function */
+std::string h_berg(std::string x, std::string y){
+    std::string ans;
+    int x_len = (int) x.size();
+    int y_len = (int) y.size();
+    if (x_len == 0) {
+        return std::string();
+    }
+    if (x_len == 1) {
+        for (auto &i : y) {
+            if (i == x[0]){
+                ans.push_back(x[0]);
+                return ans;
+            } else {
+                return std::string();
+            }
+        }
+    }
+    int i = x_len / 2;
+    std::string xb, xe, yb, ye;
+    for (int j = 0; j < i; ++j)
+        xb.push_back(x[j]);
+    for (int j = i; j < x_len; ++j)
+        xe.push_back(x[j]);
+    std::vector<int> L1 = lcs(xb, y);
+    std::reverse(xe.begin(), xe.end()); std::reverse(y.begin(), y.end());
+    std::vector<int> L2 = lcs(xe, y);
+    std::reverse(xe.begin(), xe.end()); std::reverse(y.begin(), y.end());
+    int max = L2[0];
+    int it_max = -1;
+    for (int j = 0; j < y_len; ++j) {
+        if (L1[j] + L2[y_len - (j + 1)] > max){
+            max = L1[j] + L2[y_len - (j + 1)];
+            it_max = j;
+        }
+    }
+    if (L1[y_len - 1] > max)
+        it_max = (int) y_len - 1;
+    for (int j = 0; j < it_max; ++j)
+        yb.push_back(y[j]);
+    for (int j = it_max; j < y_len; ++j)
+        ye.push_back(y[j]);
+    auto tmp = h_berg(xb, yb);
+    for (auto &item : tmp)
+        ans.push_back(item);
+    tmp = h_berg(xe, ye);
+    for (auto &item : tmp)
+        ans.push_back(item);
+    return ans;
+}
 int main(){
-//    input();
-    std::string X, Y;
-    std::cin >> X >> Y;
-    unsigned long m = X.size();
-    unsigned  long n = Y.size();
-    std::string answer = lcs(X, Y, m, n);
-    std::cout << answer << std::endl;
+    input();
+    std::string x, y;
+    std::cin >> x >> y;
+    std::cout << h_berg(x, y) << std::endl;
     return 0;
 }
