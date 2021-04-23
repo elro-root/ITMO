@@ -12,72 +12,97 @@ private:
     T *m_first, *m_last, *m_cur_first, *m_cur_last; // m_first и m_last указывают на первый последний и неизменимы
 public:
     // Итератор
-    class Iterator : public iterator<random_access_iterator_tag, T> {
+    class iter : public std::iterator<std::random_access_iterator_tag, T> {
     private:
-        T *currentValue;
+        T *p;
     public:
-         Iterator(T *currentValue) {
-            this->currentValue = currentValue;
-        }
+        iter() : p(nullptr) {}
 
-        //OPERATORS
-        Iterator operator+(int value) {
-            currentValue += value;
+        iter(T *p) : p(p) {}
+
+        iter(const iter &it) : p(it.p) {}
+
+        iter &operator+=(T x) {
+            p += x;
             return *this;
         }
 
-        Iterator operator-(int value) {
-            currentValue -= value;
+        iter &operator-=(T x) {
+            p -= x;
             return *this;
+        }
+
+        iter operator++() {
+            p++;
+            return *this;
+        }
+
+        iter &operator--() {
+            p--;
+            return *this;
+        }
+
+        iter operator++(T) {
+            iter tmp(*this);
+            ++p;
+            return tmp;
+        }
+
+        iter operator--(T) {
+            iter tmp(*this);
+            --p;
+            return tmp;
+        }
+
+        auto operator-(const iter &it) {
+            return (p - it.p);
+        }
+
+        iter operator+(int x) {
+            return iter(p + x);
+        }
+
+        iter operator-(int x) {
+            return iter(p - x);
         }
 
         T &operator*() const {
-            return *currentValue;
+            return *p;
         }
 
         T *operator->() const {
-            return currentValue;
+            return p;
         }
 
-        Iterator &operator++() {
-            ++currentValue;
-            return *this;
+        T &operator[](const int x) {
+            return p[x];
         }
 
-        Iterator operator--() {
-            currentValue--;
-            return *this;
+        bool operator==(const iter &x) const {
+            return x.p == this->p;
         }
 
-        Iterator &operator=(T *other) {
-            currentValue = other;
-            return *this;
+        bool operator!=(const iter &x) const {
+            return x.p != this->p;
         }
 
-        bool operator==(const Iterator &other) {
-            return this->currentValue = other.currentValue;
+        bool operator<(const iter &x) const {
+            return x.p < this->p;
         }
 
-        bool operator!=(const Iterator &other) {
-            return this->currentValue != other.currentValue;
+        bool operator>(const iter &x) const {
+            return x.p > this->p;
         }
 
-        bool operator>(const Iterator &other) {
-            return this->currentValue > other.currentValue;
+        bool operator>=(const iter &x) const {
+            return x.p >= this->p;
         }
 
-        bool operator>=(const Iterator &other) {
-            return this->currentValue >= other.currentValue;
-        }
-
-        bool operator<(const Iterator &other) {
-            return this->currentValue < other.currentValue;
-        }
-
-        bool operator<=(const Iterator &other) {
-            return this->currentValue <= other.currentValue;
+        bool operator<=(const iter &x) const {
+            return x.p <= this->p;
         }
     };
+
 
     // Конструктор по умолчанию, конструктор копирования и деструктор
     circular_buffer(int size_ = 0) {
@@ -94,11 +119,11 @@ public:
         delete[] m_arr;
     }
 
-    Iterator begin() { // возвращает первый элемент
-        return Iterator(m_arr);
+    iter begin() { // возвращает первый элемент
+        return (m_arr);
     }
-    Iterator end() {// возвращает последний элемент
-        return Iterator(m_arr + m_capacity);
+    iter end() {// возвращает последний элемент
+        return iter(m_arr + m_capacity);
     }
     int capacity_buffer() const { // возвращает капасити
         return m_capacity;
@@ -161,18 +186,29 @@ private:
 
 int main() {
     circular_buffer<int> buf_int(3);
-    buf_int.push_back(1);
+    buf_int.push_back(-5);
     std::cout << buf_int << "gg\n";
     buf_int.push_back(2);
     std::cout << buf_int << "gg\n";
-    buf_int.push_back(3);
+    buf_int.push_back(1);
     std::cout << buf_int << "gg\n";
     buf_int.change_capacity(4);
     buf_int.push_back(5);
     std::cout << buf_int << "gg\n";
-    //проверка итераторов
+    std::cout << *buf_int.end() << " gg\n";
+
+    if (is_sorted(buf_int.begin(), buf_int.end())){
+        std::cout << "good\n";
+    } else {
+        std::cout << "not good\n";
+    }
+    sort(buf_int.begin(), buf_int.end());
+
     if (is_sorted(buf_int.begin(), buf_int.end())){
         std::cout << "good";
+    } else {
+        std::cout << "not good";
     }
+    std::cout << buf_int << "gg\n";
     return 0;
 }
