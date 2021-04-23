@@ -165,8 +165,9 @@ public:
     }
 
     friend std::ostream& operator<< (std::ostream &out, circular_buffer<T> &circularBuffer){
-        for (auto i = &circularBuffer.m_arr[0]; i != &circularBuffer.m_arr[circularBuffer.m_capacity]; ++i)
+        for (auto i = &circularBuffer.m_arr[0]; i != &circularBuffer.m_arr[circularBuffer.m_capacity - 1]; ++i)
             out << *i << ' ';
+        out << circularBuffer.m_arr[circularBuffer.m_capacity - 1];
         return out;
     }
 };
@@ -186,29 +187,30 @@ private:
 
 int main() {
     circular_buffer<int> buf_int(3);
-    buf_int.push_back(-5);
-    std::cout << buf_int << "gg\n";
-    buf_int.push_back(2);
-    std::cout << buf_int << "gg\n";
     buf_int.push_back(1);
-    std::cout << buf_int << "gg\n";
+    std::cout << buf_int << std::endl;
+    buf_int.push_back(2);
+    std::cout << buf_int << std::endl;
+    buf_int.push_back(3);
+    std::cout << buf_int << std::endl;
     buf_int.change_capacity(4);
-    buf_int.push_back(5);
-    std::cout << buf_int << "gg\n";
-    std::cout << *buf_int.end() << " gg\n";
+    buf_int.push_back(4);
+    std::cout << buf_int << std::endl;
+    std::cout << *buf_int.end() << std::endl;
 
     if (is_sorted(buf_int.begin(), buf_int.end())){
-        std::cout << "good\n";
+        std::cout << "good" << std::endl;
     } else {
-        std::cout << "not good\n";
+        std::cout << "not good" << std::endl;
     }
+
     sort(buf_int.begin(), buf_int.end());
 
     if (is_sorted(buf_int.begin(), buf_int.end())){
-        std::cout << "good";
+        std::cout << "good" << std::endl;
     } else {
-        std::cout << "not good";
+        std::cout << "not good" << std::endl;
     }
-    std::cout << buf_int << "gg\n";
+    std::cout << buf_int << std::endl;
     return 0;
 }
