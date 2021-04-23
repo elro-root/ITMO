@@ -170,9 +170,9 @@ int main() {
     buf_int.change_capacity(4);
     buf_int.push_back(5);
     std::cout << buf_int << "gg\n";
+    //проверка итераторов
     if (is_sorted(buf_int.begin(), buf_int.end())){
         std::cout << "good";
     }
-//    sort(buf_int.begin(), buf_int.end());
     return 0;
 }
