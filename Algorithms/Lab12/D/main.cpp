@@ -24,10 +24,10 @@ int main(){
     while (i != N - 1 || j != M - 1) {
         int x = i, y = j;
         while (x >= 2 && y < M)
-            update(x--, y--);
+            update(x--, y++);
         i == N - 1 ? ++j : ++i;
     }
     update(N - 1, M - 1);
-    std::cout << chessField[N - 1][M - 1] + 1;
+    std::cout << chessField[N - 1][M - 1];
     return 0;
 }
