@@ -1,75 +1,76 @@
-#include<iostream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "input.hpp"
 
-std::vector<int> lcs(const std::string &x, const std::string &y) {
-    std::vector<int> curr(y.size() + 1, 0);
-    for (auto &i : x) {
-        std::vector<int> prev = curr;
-        for (int j = 0; j < y.size(); ++j) {
-            if (i == y[j])
-                curr[j + 1] = prev[j] + 1;
-            else
-                curr[j + 1] = std::max(curr[j], prev[j + 1]);
-        }
-    }
-    return curr;
-}
-std::string h_berg(std::string x, std::string y){
-    std::string ans;
-    int x_len = (int) x.size();
-    int y_len = (int) y.size();
-    if (x_len == 0) {
-        return std::string();
-    }
-    if (x_len == 1) {
-        for (auto &i : y) {
-            if (i == x[0]){
-                ans.push_back(x[0]);
-                return ans;
-            } else {
-                return std::string();
+void LCS(int lenX, int lenY, std::string str1, std::string str2, std::vector<int>& lastMatrixStr) {
+    std::vector<std::vector<int>> k(2, std::vector<int>(lenY + 1));
+        for (int j = 0; j <= lenY; ++j)
+            k[1][j] = 0;
+        for (int i = 0; i < lenX; ++i) {
+            for (int j = 0; j <= lenY; ++j)
+                k[0][j] = k[1][j];
+                
+            for (int j = 1; j <= lenY; ++j) {
+                if (str1[i] == str2[j - 1])
+                    k[1][j] = k[0][j - 1] + 1;
+                else
+                    k[1][j] = std::max(k[1][j - 1], k[0][j]);
             }
         }
+    for (int j = 0; j <= lenY; ++j)
+        lastMatrixStr[j] = k[1][j];
+}
+
+void h_berg(int lenX, int lenY, std::string str1, std::string str2){
+    if (lenY == 0)
+        return;
+
+    if (lenX == 1) {
+        int f = str2.find_first_of(str1[0]);
+        if (f != std::string::npos)
+            std::cout << str1[0];
+        return;
     }
-    int i = x_len / 2;
-    std::string xb, xe, yb, ye;
-    for (int j = 0; j < i; ++j)
-        xb.push_back(x[j]);
-    for (int j = i; j < x_len; ++j)
-        xe.push_back(x[j]);
-    std::vector<int> L1 = lcs(xb, y);
-    std::reverse(xe.begin(), xe.end()); std::reverse(y.begin(), y.end());
-    std::vector<int> L2 = lcs(xe, y);
-    std::reverse(xe.begin(), xe.end()); std::reverse(y.begin(), y.end());
-    int max = L2[0];
-    int it_max = -1;
-    for (int j = 0; j < y_len; ++j) {
-        if (L1[j] + L2[y_len - (j + 1)] > max){
-            max = L1[j] + L2[y_len - (j + 1)];
-            it_max = j;
+
+    std::vector<int> l1(lenY + 1);
+    std::vector<int> l2(lenY + 1);
+    int mid = lenX / 2;
+
+    LCS(mid, lenY, str1.substr(0, mid), str2, l1);
+
+    std::string str1_second = str1;
+    std::string str2_second = str2;
+    reverse(str1_second.begin(), str1_second.end());
+    reverse(str2_second.begin(), str2_second.end());
+
+    LCS(mid + 1, lenY, str1_second.substr(0, lenX - mid), str2_second, l2);
+
+    int maxV = l2[0], maxJ = 0;
+
+    for (int j = 0; j <= lenY; ++j) {
+        if (l1[j] + l2[lenY - j] > maxV) {
+            maxV = l1[j] + l2[lenY - j];
+            maxJ = j;
         }
     }
-    if (L1[y_len - 1] > max)
-        it_max = (int) y_len - 1;
-    for (int j = 0; j < it_max; ++j)
-        yb.push_back(y[j]);
-    for (int j = it_max; j < y_len; ++j)
-        ye.push_back(y[j]);
-    auto tmp = h_berg(xb, yb);
-    for (auto &item : tmp)
-        ans.push_back(item);
-    tmp = h_berg(xe, ye);
-    for (auto &item : tmp)
-        ans.push_back(item);
-    return ans;
+
+    if (!mid)
+        ++mid;
+    if (l1[lenY] > maxV)
+        maxJ = lenY;
+
+    h_berg(mid, maxJ, str1.substr(0, mid), str2.substr(0, maxJ));
+    h_berg(lenX - mid, lenY - maxJ, str1.substr(mid, lenX), str2.substr(maxJ, lenY));
 }
-int main(){
-    input();
-    std::string x, y;
-    std::cin >> x >> y;
-    std::cout << h_berg(x, y) << std::endl;
+int main() {
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+//    std::ios_base::sync_with_stdio(false);
+//    std::cin.tie();
+//    std::cin.tie();
+    std::string str1, str2;
+    std::cin >> str1 >> str2;
+    h_berg(str1.length(), str2.length(), str1, str2);
     return 0;
 }
