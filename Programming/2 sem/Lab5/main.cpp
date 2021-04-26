@@ -2,8 +2,6 @@
 #include <algorithm>
 #include <iterator>
 
-using namespace std;
-
 template<class T>
 class circular_buffer {
 private:
@@ -22,12 +20,12 @@ public:
 
         iter(const iter &it) : p(it.p) {}
 
-        iter &operator+=(T x) {
+        iter &operator+=(int x) {
             p += x;
             return *this;
         }
 
-        iter &operator-=(T x) {
+        iter &operator-=(int x) {
             p -= x;
             return *this;
         }
@@ -42,13 +40,13 @@ public:
             return *this;
         }
 
-        iter operator++(T) {
+        iter operator++(int) {
             iter tmp(*this);
             ++p;
             return tmp;
         }
 
-        iter operator--(T) {
+        iter operator--(int) {
             iter tmp(*this);
             --p;
             return tmp;
@@ -178,7 +176,7 @@ public:
     CPoint(T x = 0, T y = 0) : m_x{x}, m_y{y} {}
 
     friend std::ostream& operator<< (std::ostream &out, CPoint &point){
-        out << "(" << point.m_x << ";" << point.m_y << ") ";
+        out << "(" << point.m_x << "; " << point.m_y << ")";
         return out;
     }
 private:
@@ -186,31 +184,39 @@ private:
 };
 
 int main() {
-    circular_buffer<int> buf_int(3);
-    buf_int.push_back(1);
-    std::cout << buf_int << std::endl;
-    buf_int.push_back(2);
-    std::cout << buf_int << std::endl;
-    buf_int.push_back(3);
-    std::cout << buf_int << std::endl;
-    buf_int.change_capacity(4);
-    buf_int.push_back(4);
-    std::cout << buf_int << std::endl;
-    std::cout << *buf_int.end() << std::endl;
+    circular_buffer<float> buf_float(3);
+    buf_float.push_back(1.1);
+    std::cout << buf_float << std::endl;
+    buf_float.push_back(2.2);
+    std::cout << buf_float << std::endl;
+    buf_float.push_back(3.3);
+    std::cout << buf_float << std::endl;
+    buf_float.change_capacity(4);
+    buf_float.push_back(-5.5);
 
-    if (is_sorted(buf_int.begin(), buf_int.end())){
+    if (is_sorted(buf_float.begin(), buf_float.end())){
         std::cout << "good" << std::endl;
     } else {
         std::cout << "not good" << std::endl;
     }
 
-    sort(buf_int.begin(), buf_int.end());
+    sort(buf_float.begin(), buf_float.end());
 
-    if (is_sorted(buf_int.begin(), buf_int.end())){
+    if (is_sorted(buf_float.begin(), buf_float.end())){
         std::cout << "good" << std::endl;
     } else {
         std::cout << "not good" << std::endl;
     }
-    std::cout << buf_int << std::endl;
+    std::cout << buf_float << std::endl;
+
+    circular_buffer<CPoint<float>> buf_CPoint(3);
+    CPoint<float> a(1.1, 1.1), b(2.2, 2.2), c(3.3, 3.3);
+    buf_CPoint.push_back(a);
+    buf_CPoint.push_back(b);
+    buf_CPoint.push_back(c);
+    buf_CPoint.push_back(c);
+    std::cout << buf_CPoint << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
     return 0;
-}
+} //approved
