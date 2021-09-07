@@ -1,0 +1,18 @@
+[     5.071] (Warning) Warning, couldn't open module fbdev
+[     5.071] (Warning) Warning, couldn't open module vesa
+[     5.072] (Warning) Falling back to old probe method for modesetting
+[     5.062] (Information) LoadModule: "amdgpu"
+[     5.062] (Information) Loading /usr/lib/xorg/modules/drivers/amdgpu_drv.so
+[     5.067] (Information) Module amdgpu: vendor="X.Org Foundation"
+[     5.067] (Information) LoadModule: "ati"
+[     5.067] (Information) Loading /usr/lib/xorg/modules/drivers/ati_drv.so
+[     5.067] (Information) Module ati: vendor="X.Org Foundation"
+[     5.070] (Information) LoadModule: "modesetting"
+[     5.070] (Information) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[     5.070] (Information) Module modesetting: vendor="X.Org Foundation"
+[     5.070] (Information) LoadModule: "fbdev"
+[     5.071] (Information) LoadModule: "vesa"
+[     5.071] (Information) AMDGPU: Driver for AMD Radeon:
+[     5.071] (Information) modesetting: Driver for Modesetting Kernel Drivers: kms
+[     5.072] (Information) modeset(G0): using drv /dev/dri/card0
+[     5.072] (Information) AMDGPU(0): Creating default Display subsection in Screen section

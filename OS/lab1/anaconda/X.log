@@ -1,0 +1,36 @@
+[     5.062] (==) Matched amdgpu as autoconfigured driver 0
+[     5.062] (==) Matched ati as autoconfigured driver 1
+[     5.062] (==) Matched modesetting as autoconfigured driver 2
+[     5.062] (==) Matched fbdev as autoconfigured driver 3
+[     5.062] (==) Matched vesa as autoconfigured driver 4
+[     5.062] (==) Assigned the driver to the xf86ConfigLayout
+[     5.062] (II) LoadModule: "amdgpu"
+[     5.062] (II) Loading /usr/lib/xorg/modules/drivers/amdgpu_drv.so
+[     5.067] (II) Module amdgpu: vendor="X.Org Foundation"
+[     5.067]    compiled for 1.20.13, module version = 21.0.0
+[     5.067]    Module class: X.Org Video Driver
+[     5.067]    ABI class: X.Org Video Driver, version 24.1
+[     5.067] (II) LoadModule: "ati"
+[     5.067] (II) Loading /usr/lib/xorg/modules/drivers/ati_drv.so
+[     5.067] (II) Module ati: vendor="X.Org Foundation"
+[     5.067]    compiled for 1.20.8, module version = 19.1.0
+[     5.067]    Module class: X.Org Video Driver
+[     5.067]    ABI class: X.Org Video Driver, version 24.1
+[     5.070] (II) LoadModule: "modesetting"
+[     5.070] (II) Loading /usr/lib/xorg/modules/drivers/modesetting_drv.so
+[     5.070] (II) Module modesetting: vendor="X.Org Foundation"
+[     5.070]    compiled for 1.20.13, module version = 1.20.13
+[     5.070]    Module class: X.Org Video Driver
+[     5.070]    ABI class: X.Org Video Driver, version 24.1
+[     5.070] (II) LoadModule: "fbdev"
+[     5.071] (WW) Warning, couldn't open module fbdev
+[     5.071] (EE) Failed to load module "fbdev" (module does not exist, 0)
+[     5.071] (II) LoadModule: "vesa"
+[     5.071] (WW) Warning, couldn't open module vesa
+[     5.071] (EE) Failed to load module "vesa" (module does not exist, 0)
+[     5.071] (II) AMDGPU: Driver for AMD Radeon:
+        All GPUs supported by the amdgpu kernel driver
+[     5.071] (II) modesetting: Driver for Modesetting Kernel Drivers: kms
+[     5.072] (WW) Falling back to old probe method for modesetting
+[     5.072] (II) modeset(G0): using drv /dev/dri/card0
+[     5.072] (II) AMDGPU(0): Creating default Display subsection in Screen section
